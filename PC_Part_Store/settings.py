@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'RedTiger.apps.RedtigerConfig'
 ]
 
 MIDDLEWARE = [
@@ -76,7 +77,7 @@ WSGI_APPLICATION = 'PC_Part_Store.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'RedTiger',
+        'NAME': 'redtiger',
         'USER':'root',
         'PASSWORD': 'root',
         'HOST': 'localhost',

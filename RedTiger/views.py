@@ -1,5 +1,6 @@
 from django.http import HttpResponse
-
+from .models import Hello
 
 def index(request):
-    return HttpResponse("Hello, world!")
+    text = Hello.objects.all()
+    return HttpResponse(text)
