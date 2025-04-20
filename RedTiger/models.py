@@ -10,3 +10,26 @@ class Hello(models.Model):
 
 class Order(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
+
+class Device(models.Model):
+    deviceID = models.SmallAutoField(primary_key=True)
+    TYPE_CHOICES = (
+        ('CPU', 'CPU'),
+        ('GPU', 'GPU'),
+        ('RAM', 'RAM'),
+        ('SSD', 'SSD'),
+        ('HDD', 'HDD'),
+        ('PSU', 'PSU'),
+        ('MOBO', 'MOTHERBOARD'),
+        ('CASE', 'CASE'),
+        ('COOLER', 'COOLER'),
+        ('FAN', 'FAN')
+    )
+    deviceType = models.CharField(max_length=12, choices=TYPE_CHOICES, null=False)
+    brand = models.CharField(max_length=30, null=False)
+    model = models.CharField(max_length=30, null=False)
+    line = models.CharField(max_length=30)
+    platform = models.CharField(max_length=20)
+    storage = models.CharField(max_length=20)
+    power = models.PositiveSmallIntegerField(null=True)
+    
