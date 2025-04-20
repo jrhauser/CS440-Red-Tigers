@@ -10,10 +10,14 @@ class Hello(models.Model):
         return self.text
 
 class Order(models.Model):
+    orderID = models.SmallAutoField(primary_key=True, unique=True)
+    purchaserID = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT)
+    sellerID = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, related_name='seller')
     timestamp = models.DateTimeField(auto_now_add=True)
+    listingID = models.ForeignKey('Listing', on_delete=models.CASCADE)
 
 class Device(models.Model):
-    deviceID = models.SmallAutoField(primary_key=True)
+    deviceID = models.SmallAutoField(primary_key=True, unique=True)
     TYPE_CHOICES = (
         ('CPU', 'CPU'),
         ('GPU', 'GPU'),
@@ -35,7 +39,7 @@ class Device(models.Model):
     power = models.PositiveSmallIntegerField(null=True)
 
 class Listing(models.Model):
-    listingID = models.SmallAutoField(primary_key=True)
+    listingID = models.SmallAutoField(primary_key=True, unique=True)
     deviceID = models.ForeignKey(Device, on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveSmallIntegerField()
