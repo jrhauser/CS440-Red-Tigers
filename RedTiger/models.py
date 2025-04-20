@@ -32,4 +32,10 @@ class Device(models.Model):
     platform = models.CharField(max_length=20)
     storage = models.CharField(max_length=20)
     power = models.PositiveSmallIntegerField(null=True)
-    
+
+class Listing(models.Model):
+    listingID = models.SmallAutoField(primary_key=True)
+    deviceID = models.ForeignKey(Device, on_delete=models.CASCADE)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    quantity = models.PositiveSmallIntegerField()
+    sellerID = models.ForeignKey('User', on_delete=models.CASCADE)
