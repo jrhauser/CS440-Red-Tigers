@@ -10,14 +10,13 @@ class Hello(models.Model):
         return self.text
 
 class Order(models.Model):
-    orderID = models.SmallAutoField(primary_key=True, unique=True)
-    purchaserID = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT)
-    sellerID = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, related_name='seller')
+    orderID = models.SmallAutoField(primary_key=True, unique=True, default= 10)
     timestamp = models.DateTimeField(auto_now_add=True)
-    listingID = models.ForeignKey('Listing', on_delete=models.CASCADE)
+    productID = models.ForeignKey('Listing', on_delete=models.RESTRICT, default=1)
+    quantity = models.PositiveSmallIntegerField(null=False)
 
 class Device(models.Model):
-    deviceID = models.SmallAutoField(primary_key=True, unique=True)
+    deviceID = models.SmallAutoField(primary_key=True, unique=True, null=False, default=11)
     TYPE_CHOICES = (
         ('CPU', 'CPU'),
         ('GPU', 'GPU'),
@@ -39,8 +38,8 @@ class Device(models.Model):
     power = models.PositiveSmallIntegerField(null=True)
 
 class Listing(models.Model):
-    listingID = models.SmallAutoField(primary_key=True, unique=True)
-    deviceID = models.ForeignKey(Device, on_delete=models.CASCADE)
+    listingID = models.SmallAutoField(primary_key=True, unique=True,default=12)
+    deviceID = models.ForeignKey(Device, on_delete=models.RESTRICT, default=14)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveSmallIntegerField()
-    sellerID = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    sellerID = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, default=2)
