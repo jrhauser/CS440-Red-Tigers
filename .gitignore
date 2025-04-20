@@ -1,2 +1,3 @@
 .venv/
 *.pyc
+PC_Part_Store/settings.py
