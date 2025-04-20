@@ -7,3 +7,6 @@ class Hello(models.Model):
 
     def __str__(self):
         return self.text
+
+class Order(models.Model):
+    timestamp = models.DateTimeField(auto_now_add=True)
