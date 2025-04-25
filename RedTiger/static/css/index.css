@@ -1,0 +1,71 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to bottom, #0a0a0a, #3a0d0d, #c40000);
+    color: #d0d3d4;
+}
+
+.background {
+    position: relative;
+    min-height: 100%;
+    background: linear-gradient(to bottom, #0a0a0a, #3a0d0d, #c40000);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+}
+
+/* Cards */
+.card {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    border: 1px solid #700000;
+}
+
+.card-header {
+    background-color: #700000;
+    color: white;
+    font-weight: bold;
+}
+
+.card .btn-outline-primary {
+    color: #700000;
+    border-color: #700000;
+}
+
+.card .btn-outline-primary:hover {
+    background-color: #700000;
+    color: #fff;
+}
+
+/* Buttons */
+button, .btn {
+    font-weight: bold;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Optional: highlight prices or special elements */
+.pricing-card-title {
+    color: white;
+    font-weight: bold;
+}
+
+/* Center title/logo if you add it */
+.logo-title {
+    text-align: center;
+    font-size: 2.5rem;
+    color: #ffffff;
+    margin-top: 20px;
+    font-weight: 700;
+}
+.logo-container {
+    margin-top: 20px;
+    padding-top: 20px;
+    padding-left: 30px;
+    text-align: left;
+}
+.account-button {
+    border-radius: 50%;
+    background-color: white;
+    color: black
+}
