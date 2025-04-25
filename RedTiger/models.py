@@ -16,7 +16,7 @@ class Order(models.Model):
     quantity = models.PositiveSmallIntegerField(null=False)
 
 class Device(models.Model):
-    deviceID = models.SmallAutoField(primary_key=True, unique=True, null=False, default=11)
+    deviceID = models.SmallAutoField(primary_key=True, unique=True, null=False)
     TYPE_CHOICES = (
         ('CPU', 'CPU'),
         ('GPU', 'GPU'),
@@ -38,7 +38,7 @@ class Device(models.Model):
     power = models.PositiveSmallIntegerField(null=True)
 
 class Listing(models.Model):
-    listingID = models.SmallAutoField(primary_key=True, unique=True,default=12)
+    listingID = models.SmallAutoField(primary_key=True, unique=True )
     deviceID = models.ForeignKey(Device, on_delete=models.RESTRICT, default=14)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveSmallIntegerField()

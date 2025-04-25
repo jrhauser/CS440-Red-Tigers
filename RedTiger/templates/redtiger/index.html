@@ -1,4 +1,5 @@
 <!doctype html>
+{% load static %}
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -7,7 +8,21 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
   </head>
   <body>
-    <h1 class="text-primary">Hello, world!</h1>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
+    {% for listing in listings %}
+    <div class="card" style="width: 18rem;">
+      <div class="card-body">
+        {% for device in devices %}
+        {% if listing.deviceID_id == device.deviceID %}
+        <h5 class="card-title">{{ device.brand }} {{device.line }} {{ device.model }}</h5>
+        <h6 class="card-subtitle mb-2 text-body-secondary"></h6>
+        <h6 class="card-text">{{ device.storage }}</h6>
+        <h6 class="card-text">{{ device.platform }}</h6>
+        <a href="#" class="card-link"></a>
+        <a href="#" class="card-link">Another link</a>
+        {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
   </body>
 </html>
