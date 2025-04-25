@@ -3,8 +3,9 @@ from django.contrib import auth
 from django.template import loader
 from django.db import connection
 from collections import namedtuple
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.template import loader
+from django.contrib.auth.decorators import login_required
 def namedtuplefetchall(cursor):
     """
     Return all rows from a cursor as a namedtuple.
