@@ -14,7 +14,7 @@
       {% for device in devices %}
       {% if listing.deviceID_id == device.deviceID %}
       <div class="card-header py-3">
-        <h4 class="my-0 fw-normal">{{ device.brand}} {{device.line }} {{device.mode}} </h4>
+        <h4 class="my-0 fw-normal">{{ device.brand}} {{device.line }} {{device.model}} </h4>
       </div>
       <div class="card-body">
         <h5 class="card-title pricing-card-title">${{ listing.price }}</h5>
