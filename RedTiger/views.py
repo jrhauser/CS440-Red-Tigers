@@ -4,7 +4,8 @@ from django.template import loader
 from django.db import connection
 from collections import namedtuple
 from django.contrib.auth import authenticate, login
-from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, render
 import logging
 import unicodedata
 from django.contrib.auth.models import User
@@ -153,3 +154,8 @@ class AuthenticationForm(forms.Form):
             code="invalid_login",
             params={"username": self.username_field.verbose_name},
         )
+
+@login_required
+def userprofile(request, username):
+    user = User.objects.get(username=username)
+    return render(request, 'redtiger/userprofile.html', {'user': request.user})
