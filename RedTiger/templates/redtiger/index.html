@@ -9,19 +9,26 @@
   </head>
   <body>
     {% for listing in listings %}
-    <div class="card" style="width: 18rem;">
+    <div class="w-25">
+    <div class="card mb-4 rounded-3 shadow-sm" style="width: 18rem;">
+      {% for device in devices %}
+      {% if listing.deviceID_id == device.deviceID %}
+      <div class="card-header py-3">
+        <h4 class="my-0 fw-normal">{{ device.brand}} {{device.line }} {{device.mode}} </h4>
+      </div>
       <div class="card-body">
-        {% for device in devices %}
-        {% if listing.deviceID_id == device.deviceID %}
-        <h5 class="card-title">{{ device.brand }} {{device.line }} {{ device.model }}</h5>
-        <h6 class="card-subtitle mb-2 text-body-secondary"></h6>
-        <h6 class="card-text">{{ device.storage }}</h6>
-        <h6 class="card-text">{{ device.platform }}</h6>
-        <a href="#" class="card-link"></a>
-        <a href="#" class="card-link">Another link</a>
+        <h5 class="card-title pricing-card-title">${{ listing.price }}</h5>
+        <ul class="list-unstyled mt-3 mb-4">
+          <li>{{ device.platform }}</li>
+          <li>{{ device.storage }}</li>
+          <li>{{ device.power }} Watts</li>
+        </ul>
+        <form></form>
+        <button type="button" class="w-100 btn btn-lg btn-outline-primary" onclick="location.href='#'">Shop</button>
         {% endif %}
         {% endfor %}
       </div>
+    </div>
     </div>
     {% endfor %}
   </body>
