@@ -46,3 +46,10 @@ class Listing(models.Model):
     quantity = models.PositiveSmallIntegerField()
     sellerID = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, default=2)
 
+class Cart(models.Model):
+    pk = models.CompositePrimaryKey("userID", "listingID")
+    userID = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    listingID = models.ForeignKey(Listing, on_delete=models.CASCADE)
+    quantity = models.PositiveSmallIntegerField(null=False)
+    def __str__(self):
+        return str(self.userID) + " " + str(self.listingID) + " " + str(self.quantity)
