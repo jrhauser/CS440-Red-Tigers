@@ -64,10 +64,53 @@
                     <h5 class="card-title pricing-card-title text-center">${{ listing.price }}</h5>
                     <ul class="list-unstyled mt-3 mb-4">
                       <li>{{ device.platform }}</li>
-                      <li>{{ device.storage }}</li>
+                      <li>{{ device.storage }} Gb</li>
                       <li>{{ device.power }} Watts</li>
                     </ul>
-                    <button type="button" class="w-100 btn btn-outline-primary" onclick="location.href='#'">Buy</button>
+                    <button type="button" class="w-100 btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modal{{ listing.listingID }}" aria-hidden="true">Buy</button>
+                    <div class="modal fade" id="modal{{ listing.listingID }}" tabindex="-1" aria-labelledby="modalLabel{{ listing.listingID }}" aria-hidden="true">
+                      <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="modalLabel{{ listing.listingID }}">{{ device.brand }} {{ device.line }} {{ device.model }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body">
+                            <div class="deviceSpecs">
+                              <h6>Device Specifications</h6>
+                              <div class="row">
+                                <div class="col-6">
+                                  <ul class="list-unstyled">
+                                    <li><strong>Brand:</strong> {{ device.brand }}</li>
+                                    <li><strong>Line:</strong> {{ device.line }}</li>
+                                    <li><strong>Model:</strong> {{ device.model }}</li>
+                                  </ul>
+                                </div>
+                                <div class="col-6">
+                                  <ul class="list-unstyled">
+                                    <li><strong>Platform:</strong> {{ device.platform }}</li>
+                                    <li><strong>Storage:</strong> {{ device.storage }} Gb</li>
+                                    <li><strong>Power:</strong> {{ device.power }} Watts</li>
+                                  </ul>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="listingDetails">
+                              <h6>Listing Details</h6>
+                              <p><strong>Price:</strong> ${{ listing.price }}</p>
+                              <p><strong>Quantity:</strong> {{ listing.quantity }}</p>
+                              <p><strong>Condition:</strong> {{ listing.condition }}</p>
+                              <p><strong>Seller:</strong> {{ listing.seller.username }}</p>
+                              <p><strong>Location:</strong> {{ listing.seller.location }}</p>
+                            </div>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <a href="{% url 'buy' listing.listingID %}" class="btn btn-primary">Buy Now</a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>          
                   </div>
                 {% endif %}
               {% endfor %}

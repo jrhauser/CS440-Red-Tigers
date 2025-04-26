@@ -3,10 +3,13 @@ from django.contrib import auth
 from django.template import loader
 from django.db import connection
 from collections import namedtuple
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.template import loader
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.http import JsonResponse
+from .models import Listing
+
 def namedtuplefetchall(cursor):
     """
     Return all rows from a cursor as a namedtuple.
@@ -54,3 +57,22 @@ def login(request):
 def userprofile(request, username):
     user = User.objects.get(username=username)
     return render(request, 'redtiger/userprofile.html', {'user': request.user})
+
+def listing(request, listing_id):
+    with connection.cursor() as cursor:
+        cursor.execute('SELECT * FROM RedTiger_listing WHERE id = %s', [listing_id])
+        listing = namedtuplefetchall(cursor)[0]
+        cursor.execute('SELECT * FROM RedTiger_device WHERE id = %s', [listing.device_id])
+        device = namedtuplefetchall(cursor)[0]
+
+    context = {
+        'listing': listing,
+        'device': device,
+    }
+    template = loader.get_template("redtiger/listing.html")
+    return render(request, 'redtiger/listing.html', context)
+
+def buy(request, listing_id):
+    listing = get_object_or_404(Listing, pk=listing_id)
+    # Logic for handling the purchase can be added here
+    return JsonResponse({"message": "Purchase successful", "listing_id": listing_id})
