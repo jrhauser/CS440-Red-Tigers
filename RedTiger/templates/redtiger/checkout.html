@@ -128,6 +128,47 @@
         </div>
       </div>
     </nav>
+    <!-- Move profile button to the left of the theme button -->
+    <div class="position-absolute top-0 end-0 mt-3 me-3 d-flex align-items-center" style="z-index:1500;">
+      <a class="btn btn-primary d-flex align-items-center px-4 py-2 me-2" style="font-size: 1.1rem; height: 48px;" href="{% url 'userprofile' user.username %}">
+        <i class="bi bi-person-circle me-2" style="font-size: 1.5rem;"></i>
+        {{ user.first_name }}
+      </a>
+      <div class="dropdown bd-mode-toggle">
+        <button class="btn btn-bd-primary py-2 dropdown-toggle d-flex align-items-center"
+          id="bd-theme"
+          type="button"
+          aria-expanded="false"
+          data-bs-toggle="dropdown"
+          aria-label="Toggle theme (auto)">
+          <svg class="bi my-1 theme-icon-active" aria-hidden="true"><use href="#circle-half"></use></svg>
+          <span class="visually-hidden" id="bd-theme-text">Toggle theme</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="bd-theme-text">
+          <li>
+            <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
+              <svg class="bi me-2 opacity-50" aria-hidden="true"><use href="#sun-fill"></use></svg>
+              Light
+              <svg class="bi ms-auto d-none" aria-hidden="true"><use href="#check2"></use></svg>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">
+              <svg class="bi me-2 opacity-50" aria-hidden="true"><use href="#moon-stars-fill"></use></svg>
+              Dark
+              <svg class="bi ms-auto d-none" aria-hidden="true"><use href="#check2"></use></svg>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto" aria-pressed="true">
+              <svg class="bi me-2 opacity-50" aria-hidden="true"><use href="#circle-half"></use></svg>
+              Auto
+              <svg class="bi ms-auto d-none" aria-hidden="true"><use href="#check2"></use></svg>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
     <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
   <symbol id="check2" viewBox="0 0 16 16">
     <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
@@ -144,43 +185,6 @@
   </symbol>
 </svg>
 
-
-    <div class="dropdown position-absolute top-0 end-0 mt-3 me-3 bd-mode-toggle">
-      <button class="btn btn-bd-primary py-2 dropdown-toggle d-flex align-items-center"
-        id="bd-theme"
-        type="button"
-        aria-expanded="false"
-        data-bs-toggle="dropdown"
-        
-        aria-label="Toggle theme (auto)">
-  <svg class="bi my-1 theme-icon-active" aria-hidden="true"><use href="#circle-half"></use></svg>
-  <span class="visually-hidden" id="bd-theme-text">Toggle theme</span>
-</button>
-<ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="bd-theme-text">
-  <li>
-    <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
-      <svg class="bi me-2 opacity-50" aria-hidden="true"><use href="#sun-fill"></use></svg>
-      Light
-      <svg class="bi ms-auto d-none" aria-hidden="true"><use href="#check2"></use></svg>
-    </button>
-  </li>
-  <li>
-    <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">
-      <svg class="bi me-2 opacity-50" aria-hidden="true"><use href="#moon-stars-fill"></use></svg>
-      Dark
-      <svg class="bi ms-auto d-none" aria-hidden="true"><use href="#check2"></use></svg>
-    </button>
-  </li>
-  <li>
-    <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto" aria-pressed="true">
-      <svg class="bi me-2 opacity-50" aria-hidden="true"><use href="#circle-half"></use></svg>
-      Auto
-      <svg class="bi ms-auto d-none" aria-hidden="true"><use href="#check2"></use></svg>
-    </button>
-  </li>
-</ul>
-
-    </div>
 
     
 <div class="container">
@@ -398,7 +402,7 @@
   </main>
 
   <footer class="my-5 pt-5 text-body-secondary text-center text-small">
-    <p class="mb-1">&copy; 2017–2025 Company Name</p>
+    <p class="mb-1">&copy; 2025 Red Tiger</p>
     <ul class="list-inline">
       <li class="list-inline-item"><a href="#">Privacy</a></li>
       <li class="list-inline-item"><a href="#">Terms</a></li>
