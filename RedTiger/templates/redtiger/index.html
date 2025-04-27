@@ -39,7 +39,7 @@
             </li>
           </ul>
           {% if user.is_authenticated %}
-            <a class="btn btn-primary d-flex align-items-center px-4 py-2 me-2" style="font-size: 1.1rem; height: 48px;" href="{% url 'userprofile' user.username %}">
+            <a class="btn btn-danger d-flex align-items-center px-4 py-2 me-2" style="font-size: 1.1rem; height: 48px; background-color: #c40000; border-color: #c40000;" href="{% url 'userprofile' user.username %}">
               <i class="bi bi-person-circle me-2" style="font-size: 1.5rem;"></i>
               {{ user.first_name }}
             </a>

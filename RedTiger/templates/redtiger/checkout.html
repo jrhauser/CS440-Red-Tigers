@@ -131,7 +131,7 @@
     </nav>
     <!-- Move profile button to the left of the theme button -->
     <div class="position-absolute top-0 end-0 mt-3 me-3 d-flex align-items-center" style="z-index:1500;">
-      <a class="btn btn-primary d-flex align-items-center px-4 py-2 me-2" style="font-size: 1.1rem; height: 48px;" href="{% url 'userprofile' user.username %}">
+      <a class="btn btn-danger d-flex align-items-center px-4 py-2 me-2" style="font-size: 1.1rem; height: 48px; background-color: #c40000; border-color: #c40000;" href="{% url 'userprofile' user.username %}">
         <i class="bi bi-person-circle me-2" style="font-size: 1.5rem;"></i>
         {{ user.first_name }}
       </a>
