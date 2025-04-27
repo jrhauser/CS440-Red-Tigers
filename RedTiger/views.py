@@ -7,8 +7,8 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.template import loader
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import JsonResponse
-from .models import Listing
+from .models import Listing, Cart
+from django.middleware.csrf import get_token
 
 def namedtuplefetchall(cursor):
     """
@@ -20,28 +20,27 @@ def namedtuplefetchall(cursor):
     return [nt_result(*row) for row in cursor.fetchall()]
 
 def index(request):
-
     with connection.cursor() as cursor:
         cursor.execute('SELECT * FROM RedTiger_device')
         devices = namedtuplefetchall(cursor)
         listings = cursor.execute('SELECT * FROM RedTiger_listing')
         listings = namedtuplefetchall(cursor)
+
     context = {
         'devices': devices,
         'listings': listings,
     }
-    template = loader.get_template("redtiger/index.html")
-    return HttpResponse(template.render(context))
+    return render(request, "redtiger/index.html", context)
 
 def checkout(request):
-    template = loader.get_template("redtiger/checkout.html")
-    return HttpResponse(template.render())
+    #template = loader.get_template("redtiger/checkout.html")
+    return render(request, "redtiger/checkout.html")
 
 def login(request):
     if request.method == 'POST':
 
         username = request.POST.get('username')
-        password = request.method.get('password')
+        password = request.POST.get('password')  # Fixed typo
 
         user = auth.authenticate(username=username, password=password)
         if user is not None:
@@ -50,8 +49,9 @@ def login(request):
         else:
             return redirect('login')
     else:
-        template = loader.get_template("redtiger/login.html")
-    return HttpResponse(template.render())
+      #  template = loader.get_template("redtiger/login.html")
+      return render(request, "redtiger/login.html")
+   # return render(request, "redtiger/login.html")
 
 @login_required
 def userprofile(request, username):
@@ -72,7 +72,24 @@ def listing(request, listing_id):
     template = loader.get_template("redtiger/listing.html")
     return render(request, 'redtiger/listing.html', context)
 
-def buy(request, listing_id):
-    listing = get_object_or_404(Listing, pk=listing_id)
-    # Logic for handling the purchase can be added here
-    return JsonResponse({"message": "Purchase successful", "listing_id": listing_id})
+@login_required
+def add_to_cart(request, listing_id):
+    if request.method == "POST":
+        quantity = int(request.POST.get('quantity', 1))
+
+        listing = get_object_or_404(Listing, pk=listing_id)
+        user = request.user
+
+        cart_item, created = Cart.objects.get_or_create(
+            userID=user,
+            listingID=listing,
+            defaults={'quantity': quantity}
+        )
+
+        if not created:
+            cart_item.quantity += quantity
+            cart_item.save()
+
+        return redirect('cart')
+
+    return redirect('index')

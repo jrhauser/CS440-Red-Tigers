@@ -47,9 +47,13 @@ class Listing(models.Model):
     sellerID = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, default=2)
 
 class Cart(models.Model):
-    pk = models.CompositePrimaryKey("userID", "listingID")
+    id = models.AutoField(primary_key=True)  # Add a single primary key
     userID = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     listingID = models.ForeignKey(Listing, on_delete=models.CASCADE)
     quantity = models.PositiveSmallIntegerField(null=False)
+
+    class Meta:
+        unique_together = ('userID', 'listingID')  # Add a unique constraint
+
     def __str__(self):
         return str(self.userID) + " " + str(self.listingID) + " " + str(self.quantity)
