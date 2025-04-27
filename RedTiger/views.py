@@ -121,3 +121,6 @@ def update_cart_quantity(request, item_id):
     except (ValueError, TypeError):
         pass  # Ignore invalid input
     return redirect('checkout')
+
+def createlisting(request):
+    return render(request, "redtiger/createlisting.html")
