@@ -60,9 +60,9 @@ def userprofile(request, username):
 
 def listing(request, listing_id):
     with connection.cursor() as cursor:
-        cursor.execute('SELECT * FROM RedTiger_listing WHERE id = %s', [listing_id])
+        cursor.execute('SELECT * FROM RedTiger_listing WHERE listingID = %s', [listing_id])
         listing = namedtuplefetchall(cursor)[0]
-        cursor.execute('SELECT * FROM RedTiger_device WHERE id = %s', [listing.device_id])
+        cursor.execute('SELECT * FROM RedTiger_device WHERE deviceID = %s', [listing.deviceID_id])
         device = namedtuplefetchall(cursor)[0]
 
     context = {
@@ -90,6 +90,6 @@ def add_to_cart(request, listing_id):
             cart_item.quantity += quantity
             cart_item.save()
 
-        return redirect('cart')
+        return redirect('index')
 
     return redirect('index')
