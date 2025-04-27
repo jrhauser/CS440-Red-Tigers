@@ -185,7 +185,13 @@
           <li class="list-group-item d-flex justify-content-between lh-sm align-items-center">
             <div>
               <h6 class="my-0">{{ item.listingID.deviceID.brand }} {{ item.listingID.deviceID.model }}</h6>
-              <small class="text-body-secondary">Qty: {{ item.quantity }}</small>
+              <select name="quantity" id="quantity-{{ item.id }}" class="form-select form-select-sm" style="width: 70px; display: inline-block;" data-item-id="{{ item.id }}">
+                {% for i in quantity_range %}
+                  {% if i <= item.listingID.quantity %}
+                    <option value="{{ i }}" {% if item.quantity == i %}selected{% endif %}>{{ i }}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
             </div>
             <span class="text-body-secondary">${{ item.listingID.price|floatformat:2 }}</span>
             <form method="post" action="{% url 'remove_from_cart' item.id %}" style="margin-left: 10px;">

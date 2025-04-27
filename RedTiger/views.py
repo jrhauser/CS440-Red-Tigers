@@ -39,7 +39,8 @@ def checkout(request):
     total = sum(item.listingID.price * item.quantity for item in cart_items)
     return render(request, "redtiger/checkout.html", {
         'cart_items': cart_items,
-        'total': total
+        'total': total,
+        'quantity_range': range(1, 21)
     })
 
 def login(request):
@@ -105,4 +106,18 @@ def add_to_cart(request, listing_id):
 def remove_from_cart(request, item_id):
     cart_item = get_object_or_404(Cart, id=item_id, userID=request.user)
     cart_item.delete()
+    return redirect('checkout')
+
+@login_required
+@require_POST
+def update_cart_quantity(request, item_id):
+    cart_item = get_object_or_404(Cart, id=item_id, userID=request.user)
+    try:
+        quantity = int(request.POST.get('quantity', 1))
+        if quantity < 1:
+            quantity = 1
+        cart_item.quantity = quantity
+        cart_item.save()
+    except (ValueError, TypeError):
+        pass  # Ignore invalid input
     return redirect('checkout')
