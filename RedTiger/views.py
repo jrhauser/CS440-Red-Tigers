@@ -7,8 +7,9 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.template import loader
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import JsonResponse
-from .models import Listing
+from .models import Listing, Cart
+from django.middleware.csrf import get_token
+from django.views.decorators.http import require_POST
 
 def namedtuplefetchall(cursor):
     """
@@ -20,28 +21,33 @@ def namedtuplefetchall(cursor):
     return [nt_result(*row) for row in cursor.fetchall()]
 
 def index(request):
-
     with connection.cursor() as cursor:
         cursor.execute('SELECT * FROM RedTiger_device')
         devices = namedtuplefetchall(cursor)
         listings = cursor.execute('SELECT * FROM RedTiger_listing')
         listings = namedtuplefetchall(cursor)
+
     context = {
         'devices': devices,
         'listings': listings,
     }
-    template = loader.get_template("redtiger/index.html")
-    return HttpResponse(template.render(context))
+    return render(request, "redtiger/index.html", context)
 
+@login_required
 def checkout(request):
-    template = loader.get_template("redtiger/checkout.html")
-    return HttpResponse(template.render())
+    cart_items = Cart.objects.filter(userID=request.user).select_related('listingID')
+    total = sum(item.listingID.price * item.quantity for item in cart_items)
+    return render(request, "redtiger/checkout.html", {
+        'cart_items': cart_items,
+        'total': total,
+        'quantity_range': range(1, 21)
+    })
 
 def login(request):
     if request.method == 'POST':
 
         username = request.POST.get('username')
-        password = request.method.get('password')
+        password = request.POST.get('password')  # Fixed typo
 
         user = auth.authenticate(username=username, password=password)
         if user is not None:
@@ -50,8 +56,9 @@ def login(request):
         else:
             return redirect('login')
     else:
-        template = loader.get_template("redtiger/login.html")
-    return HttpResponse(template.render())
+      #  template = loader.get_template("redtiger/login.html")
+      return render(request, "redtiger/login.html")
+   # return render(request, "redtiger/login.html")
 
 @login_required
 def userprofile(request, username):
@@ -60,9 +67,9 @@ def userprofile(request, username):
 
 def listing(request, listing_id):
     with connection.cursor() as cursor:
-        cursor.execute('SELECT * FROM RedTiger_listing WHERE id = %s', [listing_id])
+        cursor.execute('SELECT * FROM RedTiger_listing WHERE listingID = %s', [listing_id])
         listing = namedtuplefetchall(cursor)[0]
-        cursor.execute('SELECT * FROM RedTiger_device WHERE id = %s', [listing.device_id])
+        cursor.execute('SELECT * FROM RedTiger_device WHERE deviceID = %s', [listing.deviceID_id])
         device = namedtuplefetchall(cursor)[0]
 
     context = {
@@ -72,7 +79,48 @@ def listing(request, listing_id):
     template = loader.get_template("redtiger/listing.html")
     return render(request, 'redtiger/listing.html', context)
 
-def buy(request, listing_id):
-    listing = get_object_or_404(Listing, pk=listing_id)
-    # Logic for handling the purchase can be added here
-    return JsonResponse({"message": "Purchase successful", "listing_id": listing_id})
+@login_required
+def add_to_cart(request, listing_id):
+    if request.method == "POST":
+        quantity = int(request.POST.get('quantity', 1))
+
+        listing = get_object_or_404(Listing, pk=listing_id)
+        user = request.user
+
+        cart_item, created = Cart.objects.get_or_create(
+            userID=user,
+            listingID=listing,
+            defaults={'quantity': quantity}
+        )
+
+        if not created:
+            cart_item.quantity += quantity
+            cart_item.save()
+
+        return redirect('index')
+
+    return redirect('index')
+
+@login_required
+@require_POST
+def remove_from_cart(request, item_id):
+    cart_item = get_object_or_404(Cart, id=item_id, userID=request.user)
+    cart_item.delete()
+    return redirect('checkout')
+
+@login_required
+@require_POST
+def update_cart_quantity(request, item_id):
+    cart_item = get_object_or_404(Cart, id=item_id, userID=request.user)
+    try:
+        quantity = int(request.POST.get('quantity', 1))
+        if quantity < 1:
+            quantity = 1
+        cart_item.quantity = quantity
+        cart_item.save()
+    except (ValueError, TypeError):
+        pass  # Ignore invalid input
+    return redirect('checkout')
+
+def createlisting(request):
+    return render(request, "redtiger/createlisting.html")
