@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from .models import Listing, Cart
 from django.middleware.csrf import get_token
+from django.views.decorators.http import require_POST
 
 def namedtuplefetchall(cursor):
     """
@@ -98,3 +99,10 @@ def add_to_cart(request, listing_id):
         return redirect('index')
 
     return redirect('index')
+
+@login_required
+@require_POST
+def remove_from_cart(request, item_id):
+    cart_item = get_object_or_404(Cart, id=item_id, userID=request.user)
+    cart_item.delete()
+    return redirect('checkout')
