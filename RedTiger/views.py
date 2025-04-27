@@ -32,9 +32,14 @@ def index(request):
     }
     return render(request, "redtiger/index.html", context)
 
+@login_required
 def checkout(request):
-    #template = loader.get_template("redtiger/checkout.html")
-    return render(request, "redtiger/checkout.html")
+    cart_items = Cart.objects.filter(userID=request.user).select_related('listingID')
+    total = sum(item.listingID.price * item.quantity for item in cart_items)
+    return render(request, "redtiger/checkout.html", {
+        'cart_items': cart_items,
+        'total': total
+    })
 
 def login(request):
     if request.method == 'POST':
