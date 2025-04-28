@@ -7,7 +7,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.template import loader
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from .models import Listing, Cart
+from .models import Listing, Cart, Device
 from django.middleware.csrf import get_token
 from django.views.decorators.http import require_POST
 
@@ -63,7 +63,9 @@ def login(request):
 @login_required
 def userprofile(request, username):
     user = User.objects.get(username=username)
-    return render(request, 'redtiger/userprofile.html', {'user': request.user})
+    # Get all listings where the user is the seller
+    selling_history = user.listing_set.all()
+    return render(request, 'redtiger/userprofile.html', {'user': request.user, 'selling_history': selling_history})
 
 def listing(request, listing_id):
     with connection.cursor() as cursor:
@@ -122,5 +124,51 @@ def update_cart_quantity(request, item_id):
         pass  # Ignore invalid input
     return redirect('checkout')
 
-def createlisting(request):
-    return render(request, "redtiger/createlisting.html")
+@login_required
+def create_listing(request):
+    devices = Device.objects.all()
+
+    if request.method == "POST":
+        device_id = request.POST.get('device')
+        
+        if device_id == 'new':
+            # User is creating a new device manually
+            brand = request.POST.get('brand')
+            line = request.POST.get('line')
+            model = request.POST.get('model')
+            platform = request.POST.get('platform')
+            power = request.POST.get('power')
+            storage = request.POST.get('storage')
+            image_url = request.POST.get('image_url')
+
+            new_device = Device.objects.create(
+                deviceType='OTHER',  # or CPU/GPU/etc. if you let them choose
+                brand=brand,
+                line=line,
+                model=model,
+                platform=platform,
+                power=power,
+                storage=storage,
+                image_url=image_url,
+            )
+            device = new_device
+        else:
+            # User selected an existing device
+            device = Device.objects.get(pk=device_id)
+
+        # Create the listing
+        price = request.POST.get('price')
+        quantity = request.POST.get('quantity')
+        condition = request.POST.get('condition')
+
+        new_listing = Listing.objects.create(
+            deviceID=device,
+            price=price,
+            quantity=quantity,
+            condition=condition,
+            seller=request.user  # Assuming Listing links to User
+        )
+
+        return redirect('index')  # After creation, send user back to main page
+
+    return render(request, "redtiger/createlisting.html", {"devices": devices})

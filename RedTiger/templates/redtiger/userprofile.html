@@ -127,7 +127,8 @@
                     <li class="list-group-item">
                       <strong>{{ listing.deviceID.brand }} {{ listing.deviceID.model }}</strong><br>
                       Price: ${{ listing.price }}<br>
-                      Quantity: {{ listing.quantity }}
+                      Quantity: {{ listing.quantity }}<br>
+                      Status: <span class="badge {% if listing.quantity > 0 %}bg-success{% else %}bg-secondary{% endif %}">{% if listing.quantity > 0 %}Active{% else %}Sold{% endif %}</span>
                     </li>
                   {% endfor %}
                 </ul>
