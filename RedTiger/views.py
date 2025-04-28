@@ -21,11 +21,23 @@ def namedtuplefetchall(cursor):
     return [nt_result(*row) for row in cursor.fetchall()]
 
 def index(request):
+    from django.contrib.auth.models import User
     with connection.cursor() as cursor:
         cursor.execute('SELECT * FROM RedTiger_device')
         devices = namedtuplefetchall(cursor)
-        listings = cursor.execute('SELECT * FROM RedTiger_listing')
-        listings = namedtuplefetchall(cursor)
+        cursor.execute('SELECT * FROM RedTiger_listing')
+        listings_raw = namedtuplefetchall(cursor)
+
+    # Convert each listing to a dict and attach seller User object
+    listings = []
+    for listing in listings_raw:
+        listing_dict = listing._asdict()
+        try:
+            seller = User.objects.get(pk=listing.seller_id)
+        except User.DoesNotExist:
+            seller = None
+        listing_dict['seller'] = seller
+        listings.append(listing_dict)
 
     context = {
         'devices': devices,
