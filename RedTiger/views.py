@@ -182,3 +182,22 @@ def create_listing(request):
         return redirect('index')  # After creation, send user back to main page
 
     return render(request, "redtiger/createlisting.html", {"devices": devices})
+
+@login_required
+@require_POST
+def edit_listing(request, listing_id):
+    listing = get_object_or_404(Listing, pk=listing_id, seller=request.user)
+    price = request.POST.get('price')
+    quantity = request.POST.get('quantity')
+    if price is not None and quantity is not None:
+        listing.price = price
+        listing.quantity = quantity
+        listing.save()
+    return redirect('userprofile', username=request.user.username)
+
+@login_required
+@require_POST
+def delete_listing(request, listing_id):
+    listing = get_object_or_404(Listing, pk=listing_id, seller=request.user)
+    listing.delete()
+    return redirect('userprofile', username=request.user.username)

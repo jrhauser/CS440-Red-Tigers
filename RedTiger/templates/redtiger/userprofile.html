@@ -129,6 +129,43 @@
                       Price: ${{ listing.price }}<br>
                       Quantity: {{ listing.quantity }}<br>
                       Status: <span class="badge {% if listing.quantity > 0 %}bg-success{% else %}bg-secondary{% endif %}">{% if listing.quantity > 0 %}Active{% else %}Sold{% endif %}</span>
+                      {% if listing.quantity > 0 %}
+                        <!-- Edit Button -->
+                        <button class="btn btn-sm btn-outline-primary ms-2" data-bs-toggle="modal" data-bs-target="#editListingModal{{ listing.listingID }}">Edit</button>
+                        <!-- Delete Button -->
+                        <form method="post" action="{% url 'delete_listing' listing.listingID %}" style="display:inline;">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-sm btn-outline-danger ms-1">Delete</button>
+                        </form>
+                        <!-- Edit Modal -->
+                        <div class="modal fade" id="editListingModal{{ listing.listingID }}" tabindex="-1" aria-labelledby="editListingModalLabel{{ listing.listingID }}" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <form method="post" action="{% url 'edit_listing' listing.listingID %}">
+                                {% csrf_token %}
+                                <div class="modal-header">
+                                  <h5 class="modal-title" id="editListingModalLabel{{ listing.listingID }}">Edit Listing</h5>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                  <div class="mb-3">
+                                    <label class="form-label">Price</label>
+                                    <input type="number" step="0.01" name="price" class="form-control" value="{{ listing.price }}" required>
+                                  </div>
+                                  <div class="mb-3">
+                                    <label class="form-label">Quantity</label>
+                                    <input type="number" name="quantity" class="form-control" value="{{ listing.quantity }}" min="0" required>
+                                  </div>
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                  <button type="submit" class="btn btn-primary">Save Changes</button>
+                                </div>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                      {% endif %}
                     </li>
                   {% endfor %}
                 </ul>
