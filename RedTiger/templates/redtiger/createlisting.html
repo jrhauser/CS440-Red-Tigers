@@ -123,6 +123,7 @@
     
         <!-- New Device Fields (hidden by default) -->
         <div id="newDeviceFields" style="display: none;">
+          <input type="hidden" name="device" value="new" id="newDeviceHiddenInput">
           <h5>Create New Device</h5>
           <div class="mb-3">
             <input type="text" name="brand" class="form-control" placeholder="Brand">
@@ -200,8 +201,10 @@
       
           if (deviceSelect.value === "new") {
               newDeviceFields.style.display = "block";
+              document.getElementById("newDeviceHiddenInput").disabled = false;
           } else {
               newDeviceFields.style.display = "none";
+              document.getElementById("newDeviceHiddenInput").disabled = true;
           }
       }
       
@@ -211,6 +214,8 @@
 
        var deviceSelect = document.getElementById("device");
        deviceSelect.value = "new"; // Important: simulate selecting "new"
+       // Also set the hidden input for device=new
+       document.getElementById("newDeviceHiddenInput").disabled = false;
        $('.selectpicker').selectpicker('refresh');
 
         $("#devicePreview").hide(); // Hide the preview card!

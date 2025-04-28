@@ -143,12 +143,14 @@ def update_cart_quantity(request, item_id):
 @login_required
 def create_listing(request):
     devices = Device.objects.all()
+    error = None
 
     if request.method == "POST":
+        print("POST data:", request.POST)  # Debug: print all POST data
         device_id = request.POST.get('device')
-        
+        device_type = request.POST.get('deviceType')
+        # If user is creating a new device, device_id should be 'new'
         if device_id == 'new':
-            # User is creating a new device manually
             brand = request.POST.get('brand')
             line = request.POST.get('line')
             model = request.POST.get('model')
@@ -157,37 +159,65 @@ def create_listing(request):
             storage = request.POST.get('storage')
             image_url = request.POST.get('image_url')
 
-            new_device = Device.objects.create(
-                deviceType='OTHER',  # or CPU/GPU/etc. if you let them choose
+            print(f"Creating new device: {brand=}, {line=}, {model=}, {platform=}, {power=}, {storage=}, {image_url=}, {device_type=}")
+
+            # Validate required fields for new device
+            if not (brand and model and platform and device_type):
+                error = "Please fill in all required fields for the new device (brand, model, platform, and device type)."
+                print("Error:", error)
+                return render(request, "redtiger/createlisting.html", {"devices": devices, "error": error})
+
+            # Create the new device
+            device = Device.objects.create(
+                deviceType=device_type,
                 brand=brand,
                 line=line,
                 model=model,
                 platform=platform,
-                power=power,
-                storage=storage,
+                power=power or None,
+                storage=storage or None,
                 image_url=image_url,
             )
-            device = new_device
-        else:
+            print(f"Device created: {device}")
+        elif device_id and device_id != '':
             # User selected an existing device
-            device = Device.objects.get(pk=device_id)
+            try:
+                device = Device.objects.get(pk=device_id)
+                print(f"Using existing device: {device}")
+            except Device.DoesNotExist:
+                error = "Selected device does not exist."
+                print("Error:", error)
+                return render(request, "redtiger/createlisting.html", {"devices": devices, "error": error})
+        else:
+            # No device selected or created
+            error = "Please select or create a device."
+            print("Error:", error)
+            return render(request, "redtiger/createlisting.html", {"devices": devices, "error": error})
 
         # Create the listing
         price = request.POST.get('price')
         quantity = request.POST.get('quantity')
         condition = request.POST.get('condition')
+        print(f"Creating listing: {price=}, {quantity=}, {condition=}, {device=}")
 
-        new_listing = Listing.objects.create(
+        # Validate required fields for listing
+        if not (price and quantity and condition):
+            error = "Please fill in all required fields for the listing (price, quantity, condition)."
+            print("Error:", error)
+            return render(request, "redtiger/createlisting.html", {"devices": devices, "error": error})
+
+        Listing.objects.create(
             deviceID=device,
             price=price,
             quantity=quantity,
             condition=condition,
-            seller=request.user  # Assuming Listing links to User
+            seller=request.user
         )
+        print("Listing created successfully!")
 
         return redirect('index')  # After creation, send user back to main page
 
-    return render(request, "redtiger/createlisting.html", {"devices": devices})
+    return render(request, "redtiger/createlisting.html", {"devices": devices, "error": error})
 
 @login_required
 @require_POST

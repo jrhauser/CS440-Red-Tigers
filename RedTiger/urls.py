@@ -14,7 +14,7 @@ urlpatterns = [
     path('add_to_cart/<int:listing_id>', views.add_to_cart, name='add_to_cart'),
     path('remove_from_cart/<int:item_id>', views.remove_from_cart, name='remove_from_cart'),
     path('update_cart_quantity/<int:item_id>', views.update_cart_quantity, name='update_cart_quantity'),
-    path("creaetelisting", views.create_listing, name="createlisting"),
+    path("createlisting", views.create_listing, name="createlisting"),
     path('edit_listing/<int:listing_id>', views.edit_listing, name='edit_listing'),
     path('delete_listing/<int:listing_id>', views.delete_listing, name='delete_listing'),
     path('logout/', LogoutViewAllowGet.as_view(next_page='index'), name='logout'),
