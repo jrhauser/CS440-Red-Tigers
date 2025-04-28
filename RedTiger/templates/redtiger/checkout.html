@@ -215,7 +215,7 @@
                     {% endfor %}
                   </select>
                 </div>
-                <span class="text-body-secondary">${{ item.listingID.price|floatformat:2 }}</span>
+                <span class="text-body-secondary" data-price-per-unit="{{ item.listingID.price|floatformat:2 }}">${{ item.listingID.price|floatformat:2 }}</span>
                 <form method="post" action="{% url 'remove_from_cart' item.id %}" style="margin-left: 10px;">
                   {% csrf_token %}
                   <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove item" style="padding:0 6px;line-height:1;">
@@ -413,5 +413,29 @@
 </div>
 <script defer src="/docs/5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"></script>
 
-    <script defer src="checkout.js"></script></body>
+    <script defer src="checkout.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  function recalculateTotal() {
+    let total = 0;
+    document.querySelectorAll('select[name="quantity"]').forEach(function(select) {
+      const quantity = parseInt(select.value, 10);
+      const pricePerUnit = parseFloat(select.closest('li').querySelector('[data-price-per-unit]').getAttribute('data-price-per-unit'));
+      if (!isNaN(quantity) && !isNaN(pricePerUnit)) {
+        total += quantity * pricePerUnit;
+      }
+    });
+    // Update the total price in the DOM
+    const totalElem = document.querySelector('li.list-group-item.d-flex.justify-content-between strong');
+    if (totalElem) {
+      totalElem.textContent = `$${total.toFixed(2)}`;
+    }
+  }
+
+  document.querySelectorAll('select[name="quantity"]').forEach(function(select) {
+    select.addEventListener('change', recalculateTotal);
+  });
+});
+</script>
+</body>
 </html>
