@@ -66,6 +66,46 @@
                         <h4 class="card-title">Browse Listings</h4>
                         <form method="get">
                          <h6 class="mt-3">Device Type</h6>
+                         <div class="form-check">
+                             <input class="form-check-input" type="checkbox" name="device_type" value="CPU" id="type-CPU" {% if 'CPU' in selected_types %}checked{% endif %}>
+                            <label class="form-check-label" for="type-CPU">CPU</label>
+                         </div>
+                         <div class="form-check">
+                             <input class="form-check-input" type="checkbox" name="device_type" value="GPU" id="type-GPU" {% if 'GPU' in selected_types %}checked{% endif %}>
+                            <label class="form-check-label" for="type-GPU">GPU</label>
+                         </div>
+                         <div class="form-check">
+                             <input class="form-check-input" type="checkbox" name="device_type" value="RAM" id="type-RAM" {% if 'RAM' in selected_types %}checked{% endif %}>
+                            <label class="form-check-label" for="type-RAM">RAM</label>
+                         </div>
+                         <div class="form-check">
+                             <input class="form-check-input" type="checkbox" name="device_type" value="SSD" id="type-SSD" {% if 'SSD' in selected_types %}checked{% endif %}>
+                            <label class="form-check-label" for="type-SSD">SSD</label>
+                         </div>
+                         <div class="form-check">
+                             <input class="form-check-input" type="checkbox" name="device_type" value="HDD" id="type-HDD" {% if 'HDD' in selected_types %}checked{% endif %}>
+                            <label class="form-check-label" for="type-HDD">HDD</label>
+                         </div>
+                         <div class="form-check">
+                             <input class="form-check-input" type="checkbox" name="device_type" value="PSU" id="type-PSU" {% if 'PSU' in selected_types %}checked{% endif %}>
+                            <label class="form-check-label" for="type-PSU">PSU</label>
+                         </div>
+                         <div class="form-check">
+                             <input class="form-check-input" type="checkbox" name="device_type" value="MOBO" id="type-MOBO" {% if 'MOBO' in selected_types %}checked{% endif %}>
+                            <label class="form-check-label" for="type-MOBO">Motherboard</label>
+                         </div>
+                         <div class="form-check">
+                             <input class="form-check-input" type="checkbox" name="device_type" value="CASE" id="type-CASE" {% if 'CASE' in selected_types %}checked{% endif %}>
+                            <label class="form-check-label" for="type-CASE">Case</label>
+                         </div>
+                         <div class="form-check">
+                             <input class="form-check-input" type="checkbox" name="device_type" value="COOLER" id="type-COOLER" {% if 'COOLER' in selected_types %}checked{% endif %}>
+                            <label class="form-check-label" for="type-COOLER">Cooler</label>
+                         </div>
+                         <div class="form-check">
+                             <input class="form-check-input" type="checkbox" name="device_type" value="FAN" id="type-FAN" {% if 'FAN' in selected_types %}checked{% endif %}>
+                            <label class="form-check-label" for="type-FAN">Fan</label>
+                         </div>
                          {% for type in all_types %}
                          <div class="form-check">
                              <input class="form-check-input" type="checkbox" name="device_type" value="{{ type }}" id="type-{{ type }}" {% if type in selected_types %}checked{% endif %}>
