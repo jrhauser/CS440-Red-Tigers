@@ -99,7 +99,7 @@
       <div class="row">
         {% for listing in listings %}
           <div class="col-12 col-sm-6 col-lg-2 d-flex justify-content-center mb-4">
-            <div class="card rounded-3 shadow-sm" style="width: 14rem; background-color: #1c1c1c; border: none; color: white;">
+            <div class="card rounded-3 shadow-sm d-flex flex-column" style="width: 14rem; background-color: #1c1c1c; border: none; color: white; height: 100%;">
               {% if listing.deviceID.image_url %}
                 <img src="{{ listing.deviceID.image_url }}" class="card-img-top" style="height: 200px; object-fit: contain;" alt="{{ listing.deviceID.brand }} {{ listing.deviceID.model }}">
               {% else %}
@@ -108,13 +108,15 @@
               <div class="card-header py-2 text-center text-white" style="background-color: #8B0000;">
                 <h6 class="my-0 fw-bold">{{ listing.deviceID.brand|upper }} {{ listing.deviceID.line }} {{ listing.deviceID.model }}</h6>
               </div>
-              <div class="card-body text-center">
+              <div class="card-body text-center d-flex flex-column" style="background-color: #1c1c1c; flex: 1 1 auto;">
                 <h5 class="card-title pricing-card-title" style="color: #E0E0E0;">${{ listing.price }}</h5>
                 <p>Condition: {{ listing.condition }}</p>
                 <p>Quantity: {{ listing.quantity }}</p>
-                <button type="button" class="w-100 btn btn-outline-danger mt-3" data-bs-toggle="modal" data-bs-target="#modal{{ listing.listingID }}" aria-hidden="true">
-                  Buy
-                </button>
+                <div class="mt-auto">
+                  <button type="button" class="w-100 btn btn-outline-danger mt-3" data-bs-toggle="modal" data-bs-target="#modal{{ listing.listingID }}" aria-hidden="true">
+                    Buy
+                  </button>
+                </div>
                 <!-- Modal -->
                 <div class="modal fade" id="modal{{ listing.listingID }}" tabindex="-1" aria-labelledby="modalLabel{{ listing.listingID }}" aria-hidden="true">
                   <div class="modal-dialog modal-dialog-centered">

@@ -71,7 +71,7 @@
       <div class="row justify-content-center">
         {% for listing in listings %}
           <div class="col-2 d-flex justify-content-center mb-4">
-            <div class="card rounded-3 shadow-sm" style="width: 14rem; background-color: #1c1c1c; border: none;">
+            <div class="card rounded-3 shadow-sm d-flex flex-column" style="width: 14rem; background-color: #1c1c1c; border: none; height: 100%;">
               {% for device in devices %}
                 {% if listing.deviceID_id == device.deviceID %}
                   
@@ -85,12 +85,13 @@
                     <h6 class="my-0 fw-bold">{{ device.brand|upper }} {{ device.line }} {{ device.model }}</h6>
                   </div>
     
-                  <div class="card-body text-center" style="background-color: #1c1c1c;">
+                  <div class="card-body text-center d-flex flex-column" style="background-color: #1c1c1c; flex: 1 1 auto;">
                     <h5 class="card-title pricing-card-title" style="color: #E0E0E0;">${{ listing.price }}</h5>
-    
-                    <button type="button" class="w-100 btn btn-outline-danger mt-3" data-bs-toggle="modal" data-bs-target="#modal{{ listing.listingID }}" aria-hidden="true">
-                      Buy
-                    </button>
+                    <div class="mt-auto">
+                      <button type="button" class="w-100 btn btn-outline-danger mt-3" data-bs-toggle="modal" data-bs-target="#modal{{ listing.listingID }}" aria-hidden="true">
+                        Buy
+                      </button>
+                    </div>
     
                     <!-- Modal -->
                     <div class="modal fade" id="modal{{ listing.listingID }}" tabindex="-1" aria-labelledby="modalLabel{{ listing.listingID }}" aria-hidden="true">
