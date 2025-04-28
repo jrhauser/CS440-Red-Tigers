@@ -59,7 +59,7 @@ def login(request):
     if request.method == 'POST':
 
         username = request.POST.get('username')
-        password = request.POST.get('password')  # Fixed typo
+        password = request.POST.get('password') 
 
         user = auth.authenticate(username=username, password=password)
         if user is not None:
@@ -68,14 +68,12 @@ def login(request):
         else:
             return redirect('login')
     else:
-      #  template = loader.get_template("redtiger/login.html")
       return render(request, "redtiger/login.html")
-   # return render(request, "redtiger/login.html")
+  
 
 @login_required
 def userprofile(request, username):
     user = User.objects.get(username=username)
-    # Get all listings where the user is the seller
     selling_history = user.listing_set.all()
     return render(request, 'redtiger/userprofile.html', {'user': request.user, 'selling_history': selling_history})
 
