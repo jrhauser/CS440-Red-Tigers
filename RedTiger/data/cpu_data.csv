@@ -1,0 +1,16 @@
+Brand,Line,Model,Platform,Power,ImageURL
+Intel,Core i5,12400,LGA1700,65,https://images.techpowerup.com/igpu/5471.jpg
+Intel,Core i7,12700K,LGA1700,125,https://images.techpowerup.com/igpu/5445.jpg
+Intel,Core i9,12900K,LGA1700,125,https://images.techpowerup.com/igpu/5438.jpg
+AMD,Ryzen 5,5600X,AM4,65,https://images.techpowerup.com/igpu/4971.jpg
+AMD,Ryzen 7,5800X,AM4,105,https://images.techpowerup.com/igpu/4972.jpg
+AMD,Ryzen 9,5900X,AM4,105,https://images.techpowerup.com/igpu/4973.jpg
+Intel,Core i5,13600K,LGA1700,125,https://images.techpowerup.com/igpu/5816.jpg
+Intel,Core i7,13700K,LGA1700,125,https://images.techpowerup.com/igpu/5815.jpg
+AMD,Ryzen 5,7600X,AM5,105,https://images.techpowerup.com/igpu/5801.jpg
+AMD,Ryzen 7,7700X,AM5,105,https://images.techpowerup.com/igpu/5802.jpg
+AMD,Ryzen 9,7950X,AM5,170,https://images.techpowerup.com/igpu/5803.jpg
+Intel,Core i9,13900K,LGA1700,125,https://images.techpowerup.com/igpu/5814.jpg
+Intel,Core i3,12100,LGA1700,60,https://images.techpowerup.com/igpu/5472.jpg
+AMD,Ryzen 5,5500,AM4,65,https://images.techpowerup.com/igpu/5636.jpg
+Intel,Pentium Gold,G7400,LGA1700,46,https://images.techpowerup.com/igpu/5473.jpg
