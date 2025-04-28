@@ -66,111 +66,114 @@
       </div>
     </nav>
     <div class="container my-5">
-      <h2>Create New Listing</h2>
-      <form method="POST">
-        {% csrf_token %}
-    
-        <!-- Device Type Selection -->
-        <div class="mb-3">
-          <label for="deviceType" class="form-label">Device Type</label>
-          <select id="deviceType" name="deviceType" class="form-select" onchange="filterDevicesByType()">
-            <option value="">-- Select Device Type --</option>
-            <option value="CPU">CPU</option>
-            <option value="GPU">GPU</option>
-            <option value="RAM">RAM</option>
-            <option value="SSD">SSD</option>
-            <option value="HDD">HDD</option>
-            <option value="PSU">PSU</option>
-            <option value="MOBO">Motherboard</option>
-            <option value="CASE">Case</option>
-            <option value="COOLER">Cooler</option>
-            <option value="FAN">Fan</option>
-          </select>
-        </div>
-    
-        <!-- Search for existing devices -->
-        <div class="mb-3">
-          <label for="device" class="form-label">Select Device</label>
-          <select id="device" name="device" class="form-select selectpicker" data-live-search="true" onchange="toggleNewDeviceFields(); updateDevicePreview();">
-            <option value="">-- Select a Device --</option>
-            {% for device in devices %}
-            <option value="{{ device.deviceID }}" 
-              data-type="{{ device.deviceType }}" 
-              data-platform="{{ device.platform }}" 
-              data-power="{{ device.power }}" 
-              data-storage="{{ device.storage }}" 
-              data-image="{{ device.image_url }}">
-              {{ device.brand }} {{ device.line }} {{ device.model }}
-            </option>
-            {% endfor %}
-          </select>
-        </div>
-        
-        <div id="devicePreview" class="card mt-4" style="display: none; width: 20rem; background-color: #1c1c1c; border: 1px solid #c40000; color: white; margin: auto;">
-          <img id="previewImage" src="" class="card-img-top" style="height: 200px; object-fit: contain; padding: 10px;" alt="Device Image">
-          <div class="card-body text-center">
-            <h5 class="card-title" id="previewBrandModel"></h5>
-            <p class="card-text"><strong>Platform:</strong> <span id="previewPlatform"></span></p>
-            <p class="card-text"><strong>Power:</strong> <span id="previewPower"></span> W</p>
-            <p class="card-text"><strong>Storage:</strong> <span id="previewStorage"></span> GB</p>
+      <div class="row justify-content-center align-items-start" style="min-height: 80vh;">
+        <!-- Create Listing Card -->
+        <div class="col-lg-6 mb-4">
+          <div class="card shadow-lg p-4" style="max-width: 600px; width: 100%; background-color: #181818; border: 1px solid #c40000; color: #fff;">
+            <h2 class="mb-4 text-center" style="color: #c40000; font-weight: bold;">Create New Listing</h2>
+            <form method="POST">
+              {% csrf_token %}
+              <!-- Device Type Selection -->
+              <div class="mb-3">
+                <label for="deviceType" class="form-label">Device Type</label>
+                <select id="deviceType" name="deviceType" class="form-select" onchange="filterDevicesByType()">
+                  <option value="">-- Select Device Type --</option>
+                  <option value="CPU">CPU</option>
+                  <option value="GPU">GPU</option>
+                  <option value="RAM">RAM</option>
+                  <option value="SSD">SSD</option>
+                  <option value="HDD">HDD</option>
+                  <option value="PSU">PSU</option>
+                  <option value="MOBO">Motherboard</option>
+                  <option value="CASE">Case</option>
+                  <option value="COOLER">Cooler</option>
+                  <option value="FAN">Fan</option>
+                </select>
+              </div>
+              <!-- Search for existing devices -->
+              <div class="mb-3">
+                <label for="device" class="form-label">Select Device</label>
+                <select id="device" name="device" class="form-select selectpicker" data-live-search="true" onchange="toggleNewDeviceFields(); updateDevicePreview();">
+                  <option value="">-- Select a Device --</option>
+                  {% for device in devices %}
+                  <option value="{{ device.deviceID }}" 
+                    data-type="{{ device.deviceType }}" 
+                    data-platform="{{ device.platform }}" 
+                    data-power="{{ device.power }}" 
+                    data-storage="{{ device.storage }}" 
+                    data-image="{{ device.image_url }}">
+                    {{ device.brand }} {{ device.line }} {{ device.model }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+              <!-- Create New Device Button -->
+              <div class="text-center mb-4">
+                <button type="button" class="btn btn-outline-primary" style="border-color: #c40000; color: #c40000;" onclick="showNewDeviceForm()">Create New Device</button>
+              </div>
+              <!-- New Device Fields (hidden by default) -->
+              <div id="newDeviceFields" style="display: none;">
+                <input type="hidden" name="device" value="new" id="newDeviceHiddenInput">
+                <h5 class="mb-3" style="color: #c40000;">Create New Device</h5>
+                <div class="mb-3">
+                  <input type="text" name="brand" class="form-control" placeholder="Brand">
+                </div>
+                <div class="mb-3">
+                  <input type="text" name="line" class="form-control" placeholder="Line">
+                </div>
+                <div class="mb-3">
+                  <input type="text" name="model" class="form-control" placeholder="Model">
+                </div>
+                <div class="mb-3">
+                  <input type="text" name="platform" class="form-control" placeholder="Platform">
+                </div>
+                <div class="mb-3">
+                  <input type="text" name="power" class="form-control" placeholder="Power">
+                </div>
+                <div class="mb-3">
+                  <input type="text" name="storage" class="form-control" placeholder="Storage (GB)">
+                </div>
+                <div class="mb-3">
+                  <input type="url" name="image_url" class="form-control" placeholder="Image URL">
+                </div>
+              </div>
+              <!-- Listing Information -->
+              <h5 class="mt-4 mb-3" style="color: #c40000;">Listing Details</h5>
+              <div class="mb-3">
+                <input type="text" name="price" class="form-control" placeholder="Price ($)" required>
+              </div>
+              <div class="mb-3">
+                <input type="number" name="quantity" class="form-control" placeholder="Quantity" min="1" required>
+              </div>
+              <div class="mb-3">
+                <select name="condition" class="form-select" required>
+                  <option value="">Condition</option>
+                  <option value="Brand New">Brand New</option>
+                  <option value="Like New">Like New</option>
+                  <option value="Very Good">Very Good</option>
+                  <option value="Good">Good</option>
+                  <option value="Acceptable">Acceptable</option>
+                  <option value="Refurbished">Refurbished</option>
+                  <option value="Used">Used</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-danger w-100" style="background-color: #c40000; border: none; font-weight: bold;">Create Listing</button>
+            </form>
           </div>
         </div>
-
-        <!-- Create New Device Button -->
-        <div class="text-center mb-4">
-          <button type="button" class="btn btn-outline-primary" onclick="showNewDeviceForm()">Create New Device</button>
-        </div>
-    
-        <!-- New Device Fields (hidden by default) -->
-        <div id="newDeviceFields" style="display: none;">
-          <input type="hidden" name="device" value="new" id="newDeviceHiddenInput">
-          <h5>Create New Device</h5>
-          <div class="mb-3">
-            <input type="text" name="brand" class="form-control" placeholder="Brand">
-          </div>
-          <div class="mb-3">
-            <input type="text" name="line" class="form-control" placeholder="Line">
-          </div>
-          <div class="mb-3">
-            <input type="text" name="model" class="form-control" placeholder="Model">
-          </div>
-          <div class="mb-3">
-            <input type="text" name="platform" class="form-control" placeholder="Platform">
-          </div>
-          <div class="mb-3">
-            <input type="text" name="power" class="form-control" placeholder="Power">
-          </div>
-          <div class="mb-3">
-            <input type="text" name="storage" class="form-control" placeholder="Storage (GB)">
-          </div>
-          <div class="mb-3">
-            <input type="url" name="image_url" class="form-control" placeholder="Image URL">
+        <!-- Listing Preview Card -->
+        <div class="col-lg-6 mb-4 d-flex justify-content-center">
+          <div id="devicePreview" class="card" style="display: none; width: 20rem; background-color: #232323; border: 1px solid #c40000; color: white;">
+            <img id="previewImage" src="" class="card-img-top" style="height: 200px; object-fit: contain; padding: 10px; background: #181818;" alt="Device Image">
+            <div class="card-body text-center">
+              <h5 class="card-title" id="previewBrandModel"></h5>
+              <p class="card-text"><strong>Platform:</strong> <span id="previewPlatform"></span></p>
+              <p class="card-text"><strong>Power:</strong> <span id="previewPower"></span> W</p>
+              <p class="card-text"><strong>Storage:</strong> <span id="previewStorage"></span> GB</p>
+            </div>
           </div>
         </div>
-    
-        <!-- Listing Information -->
-        <h5>Listing Details</h5>
-        <div class="mb-3">
-          <input type="text" name="price" class="form-control" placeholder="Price ($)" required>
-        </div>
-        <div class="mb-3">
-          <input type="number" name="quantity" class="form-control" placeholder="Quantity" min="1" required>
-        </div>
-        <div class="mb-3">
-          <select name="condition" class="form-select" required>
-            <option value="">Condition</option>
-            <option value="Brand New">Brand New</option>
-            <option value="Like New">Like New</option>
-            <option value="Very Good">Very Good</option>
-            <option value="Good">Good</option>
-            <option value="Acceptable">Acceptable</option>
-            <option value="Refurbished">Refurbished</option>
-            <option value="Used">Used</option>
-          </select>
-        </div>
-    
-        <button type="submit" class="btn btn-danger w-100">Create Listing</button>
-      </form>
+      </div>
     </div>
     <script>
       function updateDevicePreview() {
