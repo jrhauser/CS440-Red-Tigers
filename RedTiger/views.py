@@ -10,6 +10,12 @@ from django.contrib.auth.models import User
 from .models import Listing, Cart, Device
 from django.middleware.csrf import get_token
 from django.views.decorators.http import require_POST
+from django.contrib.auth.views import LogoutView
+
+class LogoutViewAllowGet(LogoutView):
+    http_method_names = ['get', 'post', 'head', 'options', 'trace']
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
 
 def namedtuplefetchall(cursor):
     """
@@ -201,3 +207,39 @@ def delete_listing(request, listing_id):
     listing = get_object_or_404(Listing, pk=listing_id, seller=request.user)
     listing.delete()
     return redirect('userprofile', username=request.user.username)
+
+def all_listings(request):
+    # Get filter parameters from GET request
+    device_type = request.GET.getlist('device_type')
+    brand = request.GET.getlist('brand')
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+
+    listings = Listing.objects.select_related('deviceID', 'seller').all()
+    devices = Device.objects.all()
+
+    # Filtering
+    if device_type:
+        listings = listings.filter(deviceID__deviceType__in=device_type)
+    if brand:
+        listings = listings.filter(deviceID__brand__in=brand)
+    if min_price:
+        listings = listings.filter(price__gte=min_price)
+    if max_price:
+        listings = listings.filter(price__lte=max_price)
+
+    # For filter options
+    all_types = Device.objects.values_list('deviceType', flat=True).distinct()
+    all_brands = Device.objects.values_list('brand', flat=True).distinct()
+
+    context = {
+        'listings': listings,
+        'devices': devices,
+        'all_types': all_types,
+        'all_brands': all_brands,
+        'selected_types': device_type,
+        'selected_brands': brand,
+        'min_price': min_price or '',
+        'max_price': max_price or '',
+    }
+    return render(request, 'redtiger/listing.html', context)

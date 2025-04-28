@@ -30,17 +30,24 @@
               <a class="nav-link active" aria-current="page" href="#">Home</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Buy</a>
+              <a class="nav-link" href="{% url 'all_listings' %}">Buy</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{% url 'createlisting' %}">Sell</a>
             </li>
           </ul>
           {% if user.is_authenticated %}
-            <a class="btn btn-danger d-flex align-items-center px-4 py-2 me-2" style="font-size: 1.1rem; height: 48px; background-color: #c40000; border-color: #c40000;" href="{% url 'userprofile' user.username %}">
-              <i class="bi bi-person-circle me-2" style="font-size: 1.5rem;"></i>
-              {{ user.first_name }}
-            </a>
+            <div class="dropdown">
+              <a class="btn btn-danger d-flex align-items-center px-4 py-2 me-2 dropdown-toggle" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 1.1rem; height: 48px; background-color: #c40000; border-color: #c40000;" href="#">
+                <i class="bi bi-person-circle me-2" style="font-size: 1.5rem;"></i>
+                {{ user.first_name }}
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                <li><a class="dropdown-item" href="{% url 'userprofile' user.username %}">Profile</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'logout' %}">Log out</a></li>
+              </ul>
+            </div>
             <a class="btn btn-outline-secondary d-flex align-items-center px-4 py-2" style="font-size: 1.1rem; height: 48px;" href="{% url 'checkout' %}" title="Cart">
               <i class="bi bi-cart-fill me-2"></i>
             </a>

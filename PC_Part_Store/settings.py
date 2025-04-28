@@ -132,5 +132,5 @@ STATICFILES_DIRS = [BASE_DIR/"RedTiger" / "static",]
 
 # Add the LOGIN_URL setting to point to the custom login URL
 LOGIN_URL = '/login/'
-
+LOGOUT_REDIRECT_URL = '/'
 CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'

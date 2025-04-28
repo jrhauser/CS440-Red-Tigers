@@ -1,0 +1,180 @@
+<!-- Filter and listing display page -->
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Browse Listings - Red Tiger</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{% static 'css/listing.css' %}" rel="stylesheet">
+    <link rel="icon" href="{% static 'images/redtigerlogo.png' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  </head>
+  <body class="background">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'index' %}">
+          <img src="{% static 'images/redtigerlogo.png' %}" alt="" width="50" height="50" class="d-inline-block align-text-top">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'index' %}">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="{% url 'all_listings' %}">Buy</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'createlisting' %}">Sell</a>
+            </li>
+          </ul>
+          {% if user.is_authenticated %}
+            <a class="btn btn-danger d-flex align-items-center px-4 py-2 me-2" style="font-size: 1.1rem; height: 48px; background-color: #c40000; border-color: #c40000;" href="{% url 'userprofile' user.username %}">
+              <i class="bi bi-person-circle me-2" style="font-size: 1.5rem;"></i>
+              {{ user.first_name }}
+            </a>
+            <a class="btn btn-outline-secondary d-flex align-items-center px-4 py-2" style="font-size: 1.1rem; height: 48px;" href="{% url 'checkout' %}" title="Cart">
+              <i class="bi bi-cart-fill me-2"></i>
+            </a>
+          {% else %}
+            <a class="btn btn-primary d-flex align-items-center px-4 py-2 me-2" style="font-size: 1.1rem; height: 48px;" href="{% url 'login' %}">
+              <i class="bi bi-person-circle me-2" style="font-size: 1.5rem;"></i>
+              Log in
+            </a>
+            <a class="btn btn-outline-secondary d-flex align-items-center px-4 py-2" style="font-size: 1.1rem; height: 48px;" href="{% url 'checkout' %}" title="Cart">
+              <i class="bi bi-cart-fill me-2"></i>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </nav>
+    <div class="container-fluid mt-3 mb-5">
+        <div class="row">
+            <div class="col-auto" style="padding-right: 1rem;">
+                <div class="card shadow-sm" style="background-color: #1c1c1c; color:white; width:100%; max-width:250px;">
+                    <div class="card-body">       
+                        <h4 class="card-title">Browse Listings</h4>
+                        <form method="get">
+                         <h6 class="mt-3">Device Type</h6>
+                         {% for type in all_types %}
+                         <div class="form-check">
+                             <input class="form-check-input" type="checkbox" name="device_type" value="{{ type }}" id="type-{{ type }}" {% if type in selected_types %}checked{% endif %}>
+                            <label class="form-check-label" for="type-{{ type }}">{{ type }}</label>
+                         </div>
+                    {% endfor %}
+                    <h6 class="mt-4">Brand</h6>
+                    {% for brand in all_brands %}
+                    <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="brand" value="{{ brand }}" id="brand-{{ brand }}" {% if brand in selected_brands %}checked{% endif %}>
+                    <label class="form-check-label" for="brand-{{ brand }}">{{ brand }}</label>
+                    </div>
+                    {% endfor %}
+          
+                    <h6 class="mt-4">Price Range</h6>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control" name="min_price" placeholder="Min" value="{{ min_price }}">
+                        <span class="input-group-text">-</span>
+                        <input type="number" class="form-control" name="max_price" placeholder="Max" value="{{ max_price }}">
+                    </div>
+                    <div class="d-grid gap-2 mt-3">
+                        <button type="submit" class="btn btn-danger w-100">Apply Filters</button>
+                        <a href="{% url 'all_listings' %}" class="btn btn-secondary w-100">Clear Filters</a>
+                    </div>
+                </form>  
+            </div>
+        </div>
+    </div>  
+    <div class="col">  
+      <div class="row">
+        {% for listing in listings %}
+          <div class="col-12 col-sm-6 col-lg-2 d-flex justify-content-center mb-4">
+            <div class="card rounded-3 shadow-sm" style="width: 14rem; background-color: #1c1c1c; border: none; color: white;">
+              {% if listing.deviceID.image_url %}
+                <img src="{{ listing.deviceID.image_url }}" class="card-img-top" style="height: 200px; object-fit: contain;" alt="{{ listing.deviceID.brand }} {{ listing.deviceID.model }}">
+              {% else %}
+                <img src="{% static 'images/no-image.png' %}" class="card-img-top" alt="No Image Available">
+              {% endif %}
+              <div class="card-header py-2 text-center text-white" style="background-color: #8B0000;">
+                <h6 class="my-0 fw-bold">{{ listing.deviceID.brand|upper }} {{ listing.deviceID.line }} {{ listing.deviceID.model }}</h6>
+              </div>
+              <div class="card-body text-center">
+                <h5 class="card-title pricing-card-title" style="color: #E0E0E0;">${{ listing.price }}</h5>
+                <p>Condition: {{ listing.condition }}</p>
+                <p>Quantity: {{ listing.quantity }}</p>
+                <button type="button" class="w-100 btn btn-outline-danger mt-3" data-bs-toggle="modal" data-bs-target="#modal{{ listing.listingID }}" aria-hidden="true">
+                  Buy
+                </button>
+                <!-- Modal -->
+                <div class="modal fade" id="modal{{ listing.listingID }}" tabindex="-1" aria-labelledby="modalLabel{{ listing.listingID }}" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content" style="background-color: #1c1c1c; color: white;">
+                      <div class="modal-header" style="background-color: #8B0000;">
+                        <h5 class="modal-title" id="modalLabel{{ listing.listingID }}">{{ listing.deviceID.brand|upper }} {{ listing.deviceID.line }} {{ listing.deviceID.model }}</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        {% if listing.deviceID.image_url %}
+                          <img src="{{ listing.deviceID.image_url }}" class="img-fluid mb-3" style="object-fit: contain; max-height: 200px;" alt="{{ listing.deviceID.brand }} {{ listing.deviceID.model }}">
+                        {% else %}
+                          <img src="{% static 'images/no-image.png' %}" class="img-fluid mb-3" alt="No Image Available">
+                        {% endif %}
+                        <div class="deviceSpecs">
+                          <h6>Device Specifications</h6>
+                          <div class="row">
+                            <div class="col-6">
+                              <ul class="list-unstyled">
+                                <li><strong>Brand:</strong> {{ listing.deviceID.brand }}</li>
+                                <li><strong>Line:</strong> {{ listing.deviceID.line }}</li>
+                                <li><strong>Model:</strong> {{ listing.deviceID.model }}</li>
+                              </ul>
+                            </div>
+                            <div class="col-6">
+                              <ul class="list-unstyled">
+                                <li><strong>Platform:</strong> {{ listing.deviceID.platform }}</li>
+                                <li><strong>Storage:</strong> {{ listing.deviceID.storage }} Gb</li>
+                                <li><strong>Power:</strong> {{ listing.deviceID.power }} Watts</li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="listingDetails mt-3">
+                          <h6>Listing Details</h6>
+                          <p><strong>Price:</strong> ${{ listing.price }}</p>
+                          <p><strong>Quantity:</strong> {{ listing.quantity }}</p>
+                          <p><strong>Condition:</strong> {{ listing.condition }}</p>
+                          <p><strong>Seller:</strong> {{ listing.seller.first_name }} {{ listing.seller.last_name }}</p>
+                          <p><strong>Location:</strong> {{ listing.seller.location }}</p>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <form action="{% url 'add_to_cart' listing.listingID %}" method="POST" class="d-flex justify-content-center w-100">
+                          {% csrf_token %}
+                          <input type="number" name="quantity" min="1" max="{{ listing.quantity }}" value="1" class="form-control me-2" style="width: 80px;">
+                          <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-cart-plus-fill me-2"></i> Buy Now
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="col-12">
+            <p>No listings found matching your filters.</p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+  </body>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+</html>

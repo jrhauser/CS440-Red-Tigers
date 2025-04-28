@@ -1,19 +1,16 @@
 html, body {
     height: 100%;
     margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(to bottom, #0a0a0a, #3a0d0d, #c40000);
-    color: #d0d3d4;
-}
+    padding: 0;
+  }
 
-.background {
-    position: relative;
-    min-height: 100%;
+  body {
     background: linear-gradient(to bottom, #0a0a0a, #3a0d0d, #c40000);
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-size: cover;
-}
+    background-position: top;
+  }
 
 /* Cards */
 .card {
