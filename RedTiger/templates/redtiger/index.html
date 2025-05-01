@@ -84,7 +84,7 @@
                   <div class="card-header py-2 text-center text-white" style="background-color: #8B0000;">
                     <h6 class="my-0 fw-bold">{{ device.brand|upper }} {{ device.line }} {{ device.model }}</h6>
                   </div>
-    
+                  
                   <div class="card-body text-center d-flex flex-column" style="background-color: #1c1c1c; flex: 1 1 auto;">
                     <h5 class="card-title pricing-card-title" style="color: #E0E0E0;">${{ listing.price }}</h5>
                     <div class="mt-auto">
@@ -135,7 +135,7 @@
                               <p><strong>Quantity:</strong> {{ listing.quantity }}</p>
                               <p><strong>Condition:</strong> {{ listing.condition }}</p>
                               <p><strong>Seller:</strong> {{ listing.seller.first_name }} {{ listing.seller.last_name }}</p>
-                              <p><strong>Location:</strong> {{ listing.seller.location }}</p>
+                              <p><strong>Location:</strong> {{ listing.address.city }}, {{ listing.address.state }}</p>
                             </div>
                           </div>
     

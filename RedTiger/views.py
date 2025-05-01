@@ -7,7 +7,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.template import loader
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from .models import Listing, Cart, Device
+from .models import Listing, Cart, Device, UserShipping
 from django.middleware.csrf import get_token
 from django.views.decorators.http import require_POST
 from django.contrib.auth.views import LogoutView
@@ -40,9 +40,11 @@ def index(request):
         listing_dict = listing._asdict()
         try:
             seller = User.objects.get(pk=listing.seller_id)
+            address = UserShipping.objects.get(pk=listing.seller_id)
         except User.DoesNotExist:
             seller = None
         listing_dict['seller'] = seller
+        listing_dict['address'] = address
         listings.append(listing_dict)
 
     context = {
