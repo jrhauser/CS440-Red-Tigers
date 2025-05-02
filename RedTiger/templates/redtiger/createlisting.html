@@ -73,10 +73,13 @@
             <h2 class="mb-4 text-center" style="color: #c40000; font-weight: bold;">Create New Listing</h2>
             <form method="POST">
               {% csrf_token %}
+              {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+              {% endif %}
               <!-- Device Type Selection -->
               <div class="mb-3">
                 <label for="deviceType" class="form-label">Device Type</label>
-                <select id="deviceType" name="deviceType" class="form-select" onchange="filterDevicesByType()">
+                <select id="deviceType" name="deviceType" class="form-select" onchange="filterDevicesByType()" required>
                   <option value="">-- Select Device Type --</option>
                   <option value="CPU">CPU</option>
                   <option value="GPU">GPU</option>
