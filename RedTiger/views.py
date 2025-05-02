@@ -39,12 +39,13 @@ def index(request):
     for listing in listings_raw:
         listing_dict = listing._asdict()
         try:
-            seller = User.objects.get(pk=listing.seller_id)
-            address = UserShipping.objects.get(pk=listing.seller_id)
+            seller = User.objects.raw("SELECT id, first_name, last_name FROM auth_user WHERE id = %s", [listing.seller_id])
+            address = UserShipping.objects.raw("SELECT id, city, state FROM RedTiger_usershipping WHERE user_id = %s", [listing.seller_id])
         except User.DoesNotExist:
             seller = None
-        listing_dict['seller'] = seller
-        listing_dict['address'] = address
+        listing_dict['seller'] = seller[0]
+        if address:
+            listing_dict['address'] = address[0]
         listings.append(listing_dict)
 
     context = {
@@ -56,6 +57,7 @@ def index(request):
 @login_required
 def checkout(request):
     cart_items = Cart.objects.filter(userID=request.user).select_related('listingID')
+    cart_items = Cart.objects.raw("SELECT id, listingID_id, userID_id FROM RedTiger_cart WHERE userID_id = %s", [request.user.id])
     total = sum(item.listingID.price * item.quantity for item in cart_items)
     return render(request, "redtiger/checkout.html", {
         'cart_items': cart_items,
