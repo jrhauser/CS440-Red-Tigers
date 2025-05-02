@@ -18,4 +18,5 @@ urlpatterns = [
     path('edit_listing/<int:listing_id>', views.edit_listing, name='edit_listing'),
     path('delete_listing/<int:listing_id>', views.delete_listing, name='delete_listing'),
     path('logout/', LogoutViewAllowGet.as_view(next_page='index'), name='logout'),
+    path('signup/', views.signup, name='signup')
 ]
