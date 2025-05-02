@@ -125,35 +125,37 @@ def add_to_cart(request, listing_id):
 @login_required
 @require_POST
 def remove_from_cart(request, item_id):
-    cart_item = get_object_or_404(Cart, id=item_id, userID=request.user)
+    cart_item = Cart.objects.raw("SELECT * FROM RedTiger_cart WHERE id = %s AND userID_id = %s", [item_id, request.user.id])
     cart_item.delete()
     return redirect('checkout')
 
 @login_required
 @require_POST
 def update_cart_quantity(request, item_id):
-    cart_item = get_object_or_404(Cart, id=item_id, userID=request.user)
+    cart_item = Cart.objects.raw("SELECT * FROM RedTiger_cart WHERE id = %s AND userID_id = %s", [item_id, request.user.id])[0]
     try:
         quantity = int(request.POST.get('quantity', 1))
         if quantity < 1:
             quantity = 1
         cart_item.quantity = quantity
-        cart_item.save()
+        cart_item = Cart.objects.raw("UPDATE RedTiger_cart SET quantity = %s WHERE id = %s", [quantity, item_id])
     except (ValueError, TypeError):
         pass  # Ignore invalid input
     return redirect('checkout')
 
 @login_required
 def create_listing(request):
-    devices = Device.objects.all()
+    devices = Device.objects.raw("SELECT * FROM RedTiger_device")
     error = None
 
     if request.method == "POST":
         print("POST data:", request.POST)  # Debug: print all POST data
-        device_id = request.POST.get('device')
         device_type = request.POST.get('deviceType')
-        # If user is creating a new device, device_id should be 'new'
-        if device_id == 'new':
+        if request.POST.get('device') == 'new':
+            if not device_type:
+                error = "Please select a device type when creating a new device."
+                print("Error:", error)
+                return render(request, "redtiger/createlisting.html", {"devices": devices, "error": error})
             brand = request.POST.get('brand')
             line = request.POST.get('line')
             model = request.POST.get('model')
@@ -171,98 +173,127 @@ def create_listing(request):
                 return render(request, "redtiger/createlisting.html", {"devices": devices, "error": error})
 
             # Create the new device
-            device = Device.objects.create(
-                deviceType=device_type,
-                brand=brand,
-                line=line,
-                model=model,
-                platform=platform,
-                power=power or None,
-                storage=storage or None,
-                image_url=image_url,
-            )
-            print(f"Device created: {device}")
-        elif device_id and device_id != '':
-            # User selected an existing device
-            try:
-                device = Device.objects.get(pk=device_id)
-                print(f"Using existing device: {device}")
-            except Device.DoesNotExist:
-                error = "Selected device does not exist."
-                print("Error:", error)
-                return render(request, "redtiger/createlisting.html", {"devices": devices, "error": error})
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "INSERT INTO RedTiger_device (deviceType, brand, line, model, platform, power, storage, image_url) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                    [device_type, brand, line, model, platform, power, storage, image_url]
+                )
+                cursor.execute("SELECT LAST_INSERT_ID()")
+                device_id = cursor.fetchone()[0]
+            print(f"Device created: {device_id}")
+        elif request.POST.get('device'):
+            device_id = int(request.POST.get('device'))
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT * FROM RedTiger_device WHERE deviceID = %s", [device_id])
+                device_result = cursor.fetchone()
+                if not device_result:
+                    error = "Selected device does not exist."
+                    print("Error:", error)
+                    return render(request, "redtiger/createlisting.html", {"devices": devices, "error": error})
+            print(f"Using existing device: {device_id}")
         else:
-            # No device selected or created
             error = "Please select or create a device."
             print("Error:", error)
             return render(request, "redtiger/createlisting.html", {"devices": devices, "error": error})
 
-        # Create the listing
         price = request.POST.get('price')
         quantity = request.POST.get('quantity')
         condition = request.POST.get('condition')
-        print(f"Creating listing: {price=}, {quantity=}, {condition=}, {device=}")
+        print(f"Creating listing: {price=}, {quantity=}, {condition=}, {device_id=}")
 
-        # Validate required fields for listing
         if not (price and quantity and condition):
             error = "Please fill in all required fields for the listing (price, quantity, condition)."
             print("Error:", error)
             return render(request, "redtiger/createlisting.html", {"devices": devices, "error": error})
 
-        Listing.objects.create(
-            deviceID=device,
-            price=price,
-            quantity=quantity,
-            condition=condition,
-            seller=request.user
-        )
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "INSERT INTO RedTiger_listing (deviceID_id, price, quantity, `condition`, seller_id) VALUES (%s, %s, %s, %s, %s)",
+                [device_id, price, quantity, condition, request.user.id]
+            )
         print("Listing created successfully!")
-
-        return redirect('index')  # After creation, send user back to main page
+        return redirect('index')
 
     return render(request, "redtiger/createlisting.html", {"devices": devices, "error": error})
 
 @login_required
 @require_POST
 def edit_listing(request, listing_id):
-    listing = get_object_or_404(Listing, pk=listing_id, seller=request.user)
     price = request.POST.get('price')
     quantity = request.POST.get('quantity')
     if price is not None and quantity is not None:
-        listing.price = price
-        listing.quantity = quantity
-        listing.save()
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "UPDATE RedTiger_listing SET price = %s, quantity = %s WHERE listingID = %s AND seller_id = %s",
+                [price, quantity, listing_id, request.user.id]
+            )
+    else:
+        error = "Please fill in all required fields for the listing (price, quantity)."
+        # Optionally, fetch the listing to display in the form
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM RedTiger_listing WHERE listingID = %s AND seller_id = %s", [listing_id, request.user.id])
+            listing = cursor.fetchone()
+        return render(request, "redtiger/editlisting.html", {"listing": listing, "error": error})
+    
     return redirect('userprofile', username=request.user.username)
 
 @login_required
 @require_POST
 def delete_listing(request, listing_id):
-    listing = get_object_or_404(Listing, pk=listing_id, seller=request.user)
-    listing.delete()
+    listing = Listing.objects.raw("SELECT * FROM RedTiger_listing WHERE listingID = %s AND seller_id = %s", [listing_id, request.user.id])
+    with connection.cursor() as cursor:
+        cursor.execute("DELETE FROM RedTiger_listing WHERE listingID = %s AND seller_id = %s", [listing_id, request.user.id])
     return redirect('userprofile', username=request.user.username)
 
 def all_listings(request):
-    # Get filter parameters from GET request
     device_type = request.GET.getlist('device_type')
     brand = request.GET.getlist('brand')
     min_price = request.GET.get('min_price')
     max_price = request.GET.get('max_price')
 
-    listings = Listing.objects.select_related('deviceID', 'seller').all()
-    devices = Device.objects.all()
+    devices = Device.objects.raw("SELECT * FROM RedTiger_device")
 
-    # Filtering
+    # Build SQL query dynamically, select all device columns with alias
+    sql = """
+        SELECT l.*, 
+               d.deviceID as d_deviceID, d.deviceType as d_deviceType, d.brand as d_brand, d.model as d_model, d.line as d_line, 
+               d.platform as d_platform, d.storage as d_storage, d.power as d_power, d.image_url as d_image_url
+        FROM RedTiger_listing l
+        INNER JOIN RedTiger_device d ON l.deviceID_id = d.deviceID
+        WHERE 1=1
+    """
+    params = []
     if device_type:
-        listings = listings.filter(deviceID__deviceType__in=device_type)
+        sql += " AND d.deviceType IN ({})".format(','.join(['%s'] * len(device_type)))
+        params.extend(device_type)
     if brand:
-        listings = listings.filter(deviceID__brand__in=brand)
+        sql += " AND d.brand IN ({})".format(','.join(['%s'] * len(brand)))
+        params.extend(brand)
     if min_price:
-        listings = listings.filter(price__gte=min_price)
+        sql += " AND l.price >= %s"
+        params.append(min_price)
     if max_price:
-        listings = listings.filter(price__lte=max_price)
+        sql += " AND l.price <= %s"
+        params.append(max_price)
 
-    # For filter options
+    with connection.cursor() as cursor:
+        cursor.execute(sql, params)
+        listings_raw = namedtuplefetchall(cursor)
+
+    # Attach deviceID as a namedtuple for template compatibility
+    DeviceTuple = namedtuple('DeviceTuple', ['deviceID', 'deviceType', 'brand', 'model', 'line', 'platform', 'storage', 'power', 'image_url'])
+    listings = []
+    for l in listings_raw:
+        device = DeviceTuple(
+            l.d_deviceID, l.d_deviceType, l.d_brand, l.d_model, l.d_line, l.d_platform, l.d_storage, l.d_power, l.d_image_url
+        )
+        # Convert to dict to allow attribute access in template
+        listing_dict = l._asdict()
+        listing_dict['deviceID'] = device
+        listings.append(type('ListingObj', (), listing_dict))
+
     all_types = Device.objects.values_list('deviceType', flat=True).distinct()
+    all_types = sorted(set(all_types))  # Ensure unique and sorted device types
     all_brands = Device.objects.values_list('brand', flat=True).distinct()
 
     context = {
@@ -284,12 +315,13 @@ def signup(request):
         email = request.POST.get('email')
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
-
+        
         if User.objects.filter(username=username).exists():
             return render(request, "redtiger/signup.html", {"error": "Username already exists."})
         if User.objects.filter(email=email).exists():
             return render(request, "redtiger/signup.html", {"error": "Email already exists."})
 
+        
         user = User.objects.create_user(username=username, password=password, email=email)
         user.first_name = first_name
         user.last_name = last_name
@@ -298,4 +330,4 @@ def signup(request):
         return redirect('index')
     else:
         return render(request, "redtiger/signup.html")
-    
+
