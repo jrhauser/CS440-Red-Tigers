@@ -277,3 +277,25 @@ def all_listings(request):
         'max_price': max_price or '',
     }
     return render(request, 'redtiger/listing.html', context)
+
+def signup(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        email = request.POST.get('email')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+
+        if User.objects.filter(username=username).exists():
+            return render(request, "redtiger/signup.html", {"error": "Username already exists."})
+        if User.objects.filter(email=email).exists():
+            return render(request, "redtiger/signup.html", {"error": "Email already exists."})
+
+        user = User.objects.create_user(username=username, password=password, email=email)
+        user.first_name = first_name
+        user.last_name = last_name
+        user.save()
+        auth.login(request, user)
+        return redirect('index')
+    else:
+        return render(request, "redtiger/signup.html")
