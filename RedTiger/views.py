@@ -11,7 +11,6 @@ from .models import Listing, Cart, Device, UserShipping
 from django.middleware.csrf import get_token
 from django.views.decorators.http import require_POST
 from django.contrib.auth.views import LogoutView
-
 class LogoutViewAllowGet(LogoutView):
     http_method_names = ['get', 'post', 'head', 'options', 'trace']
     def get(self, request, *args, **kwargs):
@@ -47,7 +46,6 @@ def index(request):
         if address:
             listing_dict['address'] = address[0]
         listings.append(listing_dict)
-
     context = {
         'devices': devices,
         'listings': listings,
@@ -56,7 +54,6 @@ def index(request):
 
 @login_required
 def checkout(request):
-    cart_items = Cart.objects.filter(userID=request.user).select_related('listingID')
     cart_items = Cart.objects.raw("SELECT id, listingID_id, userID_id FROM RedTiger_cart WHERE userID_id = %s", [request.user.id])
     total = sum(item.listingID.price * item.quantity for item in cart_items)
     return render(request, "redtiger/checkout.html", {
@@ -83,9 +80,9 @@ def login(request):
 
 @login_required
 def userprofile(request, username):
-    user = User.objects.get(username=username)
     user = User.objects.raw("SELECT username, id FROM auth_user WHERE username = %s", [username])
-    print(Listing.objects.raw("SELECT * FROM RedTiger_listing WHERE seller_id = %s", [user[0].id])[0])
+    print(user[0])
+    print(Listing.objects.raw("SELECT * FROM RedTiger_listing WHERE seller_id = %s", [user[0].id]))
     selling_history = Listing.objects.raw("SELECT * FROM RedTiger_listing WHERE seller_id = %s", [user[0].id])
     return render(request, 'redtiger/userprofile.html', {'user': request.user, 'selling_history': selling_history})
 
@@ -301,3 +298,4 @@ def signup(request):
         return redirect('index')
     else:
         return render(request, "redtiger/signup.html")
+    
