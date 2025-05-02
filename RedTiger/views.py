@@ -84,7 +84,9 @@ def login(request):
 @login_required
 def userprofile(request, username):
     user = User.objects.get(username=username)
-    selling_history = user.listing_set.all()
+    user = User.objects.raw("SELECT username, id FROM auth_user WHERE username = %s", [username])
+    print(Listing.objects.raw("SELECT * FROM RedTiger_listing WHERE seller_id = %s", [user[0].id])[0])
+    selling_history = Listing.objects.raw("SELECT * FROM RedTiger_listing WHERE seller_id = %s", [user[0].id])
     return render(request, 'redtiger/userprofile.html', {'user': request.user, 'selling_history': selling_history})
 
 def listing(request, listing_id):
