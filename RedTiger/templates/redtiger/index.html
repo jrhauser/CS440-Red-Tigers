@@ -136,6 +136,13 @@
                               <p><strong>Condition:</strong> {{ listing.condition }}</p>
                               <p><strong>Seller:</strong> {{ listing.seller.first_name }} {{ listing.seller.last_name }}</p>
                               <p><strong>Location:</strong> {{ listing.address.city }}, {{ listing.address.state }}</p>
+                              <p><strong>Date Posted:</strong>
+                                {% load tz %}
+                                {% get_current_timezone as tz %}
+                                {% timezone tz %}
+                                {{ listing.timestamp|date:"F j, Y H:i:s" }}
+                                {% endtimezone %} 
+                              </p>
                             </div>
                           </div>
     

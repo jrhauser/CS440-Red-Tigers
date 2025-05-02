@@ -14,7 +14,6 @@ class Order(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     productID = models.ForeignKey('Listing', on_delete=models.RESTRICT, default=1)
     quantity = models.PositiveSmallIntegerField(null=False)
-
 class Device(models.Model):
     deviceID = models.SmallAutoField(primary_key=True, unique=True, null=False)
     TYPE_CHOICES = (
@@ -56,6 +55,7 @@ class Listing(models.Model):
     )
     condition = models.CharField(max_length=20, choices=CONDITION_CHOICES, null=False, default='Brand New')
     seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, default=2)
+    timestamp = models.DateTimeField(auto_now_add=True, blank=True)
 
 class Cart(models.Model):
     id = models.AutoField(primary_key=True)  # Add a single primary key
