@@ -219,44 +219,81 @@ def create_listing(request):
 @login_required
 @require_POST
 def edit_listing(request, listing_id):
-    listing = get_object_or_404(Listing, pk=listing_id, seller=request.user)
     price = request.POST.get('price')
     quantity = request.POST.get('quantity')
     if price is not None and quantity is not None:
-        listing.price = price
-        listing.quantity = quantity
-        listing.save()
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "UPDATE RedTiger_listing SET price = %s, quantity = %s WHERE listingID = %s AND seller_id = %s",
+                [price, quantity, listing_id, request.user.id]
+            )
+    else:
+        error = "Please fill in all required fields for the listing (price, quantity)."
+        # Optionally, fetch the listing to display in the form
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM RedTiger_listing WHERE listingID = %s AND seller_id = %s", [listing_id, request.user.id])
+            listing = cursor.fetchone()
+        return render(request, "redtiger/editlisting.html", {"listing": listing, "error": error})
+    
     return redirect('userprofile', username=request.user.username)
 
 @login_required
 @require_POST
 def delete_listing(request, listing_id):
-    listing = get_object_or_404(Listing, pk=listing_id, seller=request.user)
-    listing.delete()
+    listing = Listing.objects.raw("SELECT * FROM RedTiger_listing WHERE listingID = %s AND seller_id = %s", [listing_id, request.user.id])
+    with connection.cursor() as cursor:
+        cursor.execute("DELETE FROM RedTiger_listing WHERE listingID = %s AND seller_id = %s", [listing_id, request.user.id])
     return redirect('userprofile', username=request.user.username)
 
 def all_listings(request):
-    # Get filter parameters from GET request
     device_type = request.GET.getlist('device_type')
     brand = request.GET.getlist('brand')
     min_price = request.GET.get('min_price')
     max_price = request.GET.get('max_price')
 
-    listings = Listing.objects.select_related('deviceID', 'seller').all()
-    devices = Device.objects.all()
+    devices = Device.objects.raw("SELECT * FROM RedTiger_device")
 
-    # Filtering
+    # Build SQL query dynamically, select all device columns with alias
+    sql = """
+        SELECT l.*, 
+               d.deviceID as d_deviceID, d.deviceType as d_deviceType, d.brand as d_brand, d.model as d_model, d.line as d_line, 
+               d.platform as d_platform, d.storage as d_storage, d.power as d_power, d.image_url as d_image_url
+        FROM RedTiger_listing l
+        INNER JOIN RedTiger_device d ON l.deviceID_id = d.deviceID
+        WHERE 1=1
+    """
+    params = []
     if device_type:
-        listings = listings.filter(deviceID__deviceType__in=device_type)
+        sql += " AND d.deviceType IN ({})".format(','.join(['%s'] * len(device_type)))
+        params.extend(device_type)
     if brand:
-        listings = listings.filter(deviceID__brand__in=brand)
+        sql += " AND d.brand IN ({})".format(','.join(['%s'] * len(brand)))
+        params.extend(brand)
     if min_price:
-        listings = listings.filter(price__gte=min_price)
+        sql += " AND l.price >= %s"
+        params.append(min_price)
     if max_price:
-        listings = listings.filter(price__lte(max_price))
+        sql += " AND l.price <= %s"
+        params.append(max_price)
 
-    # For filter options
+    with connection.cursor() as cursor:
+        cursor.execute(sql, params)
+        listings_raw = namedtuplefetchall(cursor)
+
+    # Attach deviceID as a namedtuple for template compatibility
+    DeviceTuple = namedtuple('DeviceTuple', ['deviceID', 'deviceType', 'brand', 'model', 'line', 'platform', 'storage', 'power', 'image_url'])
+    listings = []
+    for l in listings_raw:
+        device = DeviceTuple(
+            l.d_deviceID, l.d_deviceType, l.d_brand, l.d_model, l.d_line, l.d_platform, l.d_storage, l.d_power, l.d_image_url
+        )
+        # Convert to dict to allow attribute access in template
+        listing_dict = l._asdict()
+        listing_dict['deviceID'] = device
+        listings.append(type('ListingObj', (), listing_dict))
+
     all_types = Device.objects.values_list('deviceType', flat=True).distinct()
+    all_types = sorted(set(all_types))  # Ensure unique and sorted device types
     all_brands = Device.objects.values_list('brand', flat=True).distinct()
 
     context = {
@@ -278,12 +315,13 @@ def signup(request):
         email = request.POST.get('email')
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
-
+        
         if User.objects.filter(username=username).exists():
             return render(request, "redtiger/signup.html", {"error": "Username already exists."})
         if User.objects.filter(email=email).exists():
             return render(request, "redtiger/signup.html", {"error": "Email already exists."})
 
+        
         user = User.objects.create_user(username=username, password=password, email=email)
         user.first_name = first_name
         user.last_name = last_name
@@ -292,4 +330,4 @@ def signup(request):
         return redirect('index')
     else:
         return render(request, "redtiger/signup.html")
-    
+
