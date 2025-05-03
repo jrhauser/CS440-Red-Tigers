@@ -81,10 +81,15 @@ def login(request):
 @login_required
 def userprofile(request, username):
     user = User.objects.raw("SELECT username, id FROM auth_user WHERE username = %s", [username])
-    print(user[0])
-    print(Listing.objects.raw("SELECT * FROM RedTiger_listing WHERE seller_id = %s", [user[0].id]))
+    if request.method == "POST":
+        print(str(user[0].id) + "|" + str(request.POST.get('shipping_address')) + '|' + str(request.POST.get('city')) + '|' + str(request.POST.get('state')))
+        with connection.cursor() as cursor:
+            cursor.execute("REPLACE INTO RedTiger_usershipping (user_id, shipping_address, city, state) VALUES (%s, %s, %s, %s)", 
+                                 [user[0].id, request.POST.get('shipping_address'), request.POST.get('city'), request.POST.get('state')])
+        return(redirect('userprofile', username))
     selling_history = Listing.objects.raw("SELECT * FROM RedTiger_listing WHERE seller_id = %s", [user[0].id])
-    return render(request, 'redtiger/userprofile.html', {'user': request.user, 'selling_history': selling_history})
+    address = UserShipping.objects.raw("SELECT * FROM RedTiger_usershipping WHERE user_id = %s", [user[0].id])
+    return render(request, 'redtiger/userprofile.html', {'user': request.user, 'selling_history': selling_history, 'address': address[0]})
 
 def listing(request, listing_id):
     with connection.cursor() as cursor:
@@ -107,7 +112,7 @@ def add_to_cart(request, listing_id):
 
         listing = get_object_or_404(Listing, pk=listing_id)
         user = request.user
-
+        # TODO: Change to SQL 
         cart_item, created = Cart.objects.get_or_create(
             userID=user,
             listingID=listing,
@@ -240,6 +245,7 @@ def edit_listing(request, listing_id):
 @login_required
 @require_POST
 def delete_listing(request, listing_id):
+    # TODO: remove?
     listing = Listing.objects.raw("SELECT * FROM RedTiger_listing WHERE listingID = %s AND seller_id = %s", [listing_id, request.user.id])
     with connection.cursor() as cursor:
         cursor.execute("DELETE FROM RedTiger_listing WHERE listingID = %s AND seller_id = %s", [listing_id, request.user.id])
@@ -291,7 +297,7 @@ def all_listings(request):
         listing_dict = l._asdict()
         listing_dict['deviceID'] = device
         listings.append(type('ListingObj', (), listing_dict))
-
+    # TODO: CHANGE TO SQL
     all_types = Device.objects.values_list('deviceType', flat=True).distinct()
     all_types = sorted(set(all_types))  # Ensure unique and sorted device types
     all_brands = Device.objects.values_list('brand', flat=True).distinct()
@@ -315,13 +321,13 @@ def signup(request):
         email = request.POST.get('email')
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
-        
+        #TODO: Change to SQL
         if User.objects.filter(username=username).exists():
             return render(request, "redtiger/signup.html", {"error": "Username already exists."})
         if User.objects.filter(email=email).exists():
             return render(request, "redtiger/signup.html", {"error": "Email already exists."})
 
-        
+        # TODO: ADD CORRESPONDING QUERY EVEN THO ITS NOT USED
         user = User.objects.create_user(username=username, password=password, email=email)
         user.first_name = first_name
         user.last_name = last_name
