@@ -132,8 +132,8 @@ def add_to_cart(request, listing_id):
 @login_required
 @require_POST
 def remove_from_cart(request, item_id):
-    cart_item = Cart.objects.raw("SELECT * FROM RedTiger_cart WHERE id = %s AND userID_id = %s", [item_id, request.user.id])
-    cart_item.delete()
+    with connection.cursor() as cursor:
+        cursor.execute("DELETE FROM RedTiger_cart WHERE id = %s AND userID_id = %s", [item_id, request.user.id])
     return redirect('checkout')
 
 @login_required
