@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.contrib import auth
 from django.template import loader
-from django.db import connection
+from django.db import connection, transaction
 from collections import namedtuple
 from django.shortcuts import redirect, render, get_object_or_404
 from django.template import loader
@@ -339,3 +339,37 @@ def signup(request):
     else:
         return render(request, "redtiger/signup.html")
 
+@login_required
+def process_purchase(request):
+    user_id = request.user.id
+
+    try:
+        with transaction.atomic():
+            with connection.cursor() as cursor:
+                cursor.execute(
+                  "INSERT INTO RedTiger_Order (userID_id, order_date) VALUES (%s, NOW())", [user_id]
+                )
+                order_id = cursor.fetchone()[0]
+
+                cursor.execute(
+                    "SELECT listingID_id, quantity FROM RedTiger_cart WHERE userID_id = %s", [user_id]
+                )
+                cart_items = namedtuplefetchall(cursor)
+                for item in cart_items:
+                    cursor.execute(
+                        "INSERT INTO RedTiger_OrderItem (orderID_id, listingID_id, quantity) VALUES (%s, %s, %s)", [order_id, item.listingID_id, item.quantity]
+                    )
+                    cursor.execute(
+                        "UPDATE RedTiger_listing SET quantity = quantity - %s WHERE listingID = %s AND quantity >= %s", [item.quantity, item.listingID_id, item.quantity]
+                    )
+                    if cursor.rowcount == 0:
+                        raise Exception("Insufficient stock for listing ID: %s" % item.listingID_id)
+                cursor.execute(
+                    "DELETE FROM RedTiger_cart WHERE userID_id = %s", [user_id]
+                )
+            return redirect('userprofile')
+    except Exception as e:
+        with connection.cursor() as cursor:
+            cursor.execute("ROLLBACK")
+            #cursor.execute("DELETE FROM RedTiger_Order WHERE orderID = %s", [order_id])
+        return render(request, "redtiger/checkout.html", {"error": str(e)})
