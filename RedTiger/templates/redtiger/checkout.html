@@ -206,6 +206,11 @@
     
 <div class="container">
   <main>
+    {% if platform_warning %}
+      <div class="alert alert-warning" role="alert">
+        {{ platform_warning }}
+      </div>
+    {% endif %}
     <div class="row g-5 align-items-center">
       <div class="col-md-12">
         <div class="py-5 text-center">

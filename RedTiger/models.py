@@ -46,6 +46,7 @@ class Order(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     productID = models.ForeignKey('Listing', on_delete=models.RESTRICT, default=1)
     quantity = models.PositiveSmallIntegerField(null=False)
+    userID = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, default=2)
 
 '''
 DDL for device table:
