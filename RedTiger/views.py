@@ -89,6 +89,8 @@ def userprofile(request, username):
         return(redirect('userprofile', username))
     selling_history = Listing.objects.raw("SELECT * FROM RedTiger_listing WHERE seller_id = %s", [user[0].id])
     address = UserShipping.objects.raw("SELECT * FROM RedTiger_usershipping WHERE user_id = %s", [user[0].id])
+    if not address:
+            return render(request, 'redtiger/userprofile.html', {'user': request.user, 'selling_history': selling_history, 'address': None})        
     return render(request, 'redtiger/userprofile.html', {'user': request.user, 'selling_history': selling_history, 'address': address[0]})
 
 def listing(request, listing_id):

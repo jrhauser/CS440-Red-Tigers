@@ -124,7 +124,7 @@ class Listing(models.Model):
     )
     condition = models.CharField(max_length=20, choices=CONDITION_CHOICES, null=False, default='Brand New')
     seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, default=2)
-    timestamp = models.DateTimeField(auto_now_add=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
 '''
 DDL for cart table:
