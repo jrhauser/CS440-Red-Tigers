@@ -25,35 +25,48 @@
   </head>
 
   <body class="text-center">
-    <form class="form-signin" action="{% url 'signup' %}" method="post">
-      {% csrf_token %}
-        <img class="mb-4" src="{% static 'images/redtigerlogo.png' %}" alt="" width="250" height="250">
-        <h1 class="h3 mb-3 font-weight-normal">Create an account</h1>
-        <div class="container" style="max-width: 900px;">
-          <div class="d-flex justify-content-center" style="gap: 40px;">
-            <div style="min-width: 350px;">
-              <label for="username" class="sr-only">Username</label>
-              <input type="text" id="username" name="username" class="form-control form-control-lg rounded mb-2 w-100" style="min-width:350px;" placeholder="Username" required autofocus>
-              <label for="first_name" class="sr-only">First Name</label>
-              <input type="text" id="first_name" name="first_name" class="form-control form-control-lg rounded mb-2 w-100" style="min-width:350px;" placeholder="First Name" required>
-              <label for="last_name" class="sr-only">Last Name</label>
-              <input type="text" id="last_name" name="last_name" class="form-control form-control-lg rounded mb-2 w-100" style="min-width:350px;" placeholder="Last Name" required>
-            </div>
-            <div style="min-width: 350px;">
-              <label for="email" class="sr-only">Email</label>
-              <input type="email" id="email" name="email" class="form-control form-control-lg rounded mb-2 w-100" style="min-width:350px;" placeholder="Email" required>
-              <label for="phone" class="sr-only">Phone</label>
-              <input type="text" id="phone" name="phone" class="form-control form-control-lg rounded mb-2 w-100" style="min-width:350px;" placeholder="Phone">
-              <label for="password" class="sr-only">Password</label>
-              <input type="password" id="password" name="password" class="form-control form-control-lg rounded mb-2 w-100" style="min-width:350px;" placeholder="Password" required>
-              <label for="confirm_password" class="sr-only">Confirm Password</label>
-              <input type="password" id="confirm_password" name="confirm_password" class="form-control form-control-lg rounded mb-2 w-100" style="min-width:350px;" placeholder="Confirm Password" required>
+    <div class="container">
+      <img class="mb-4" src="{% static 'images/redtigerlogo.png' %}" alt="" width="250" height="250">
+      <h1 class="h3 mb-3 font-weight-normal">Create an account</h1>
+      {% if error %}
+      <div class="row">
+        <div class="col"></div>
+        <div class=" w-25 alert alert-danger" role="alert">
+          {{error}}
+        </div>
+        <div class="col"></div>
+      </div>
+      {% endif %}
+      <div class="row"><form class="form-signin" action="{% url 'signup' %}" method="post">
+        {% csrf_token %}
+
+          <div class="container" style="max-width: 900px;">
+            <div class="d-flex justify-content-center" style="gap: 40px;">
+              <div style="min-width: 350px;">
+                <label for="username" class="sr-only">Username</label>
+                <input type="text" id="username" name="username" class="form-control form-control-lg rounded mb-2 w-100" style="min-width:350px;" placeholder="Username" required autofocus>
+                <label for="first_name" class="sr-only">First Name</label>
+                <input type="text" id="first_name" name="first_name" class="form-control form-control-lg rounded mb-2 w-100" style="min-width:350px;" placeholder="First Name" required>
+                <label for="last_name" class="sr-only">Last Name</label>
+                <input type="text" id="last_name" name="last_name" class="form-control form-control-lg rounded mb-2 w-100" style="min-width:350px;" placeholder="Last Name" required>
+              </div>
+              <div style="min-width: 350px;">
+                <label for="email" class="sr-only">Email</label>
+                <input type="email" id="email" name="email" class="form-control form-control-lg rounded mb-2 w-100" style="min-width:350px;" placeholder="Email" required>
+                <label for="phone" class="sr-only">Phone</label>
+                <input type="text" id="phone" name="phone" class="form-control form-control-lg rounded mb-2 w-100" style="min-width:350px;" placeholder="Phone">
+                <label for="password" class="sr-only">Password</label>
+                <input type="password" id="password" name="password" class="form-control form-control-lg rounded mb-2 w-100" style="min-width:350px;" placeholder="Password" required>
+                <label for="confirm_password" class="sr-only">Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" class="form-control form-control-lg rounded mb-2 w-100" style="min-width:350px;" placeholder="Confirm Password" required>
+              </div>
             </div>
           </div>
-        </div>
-        <button class="btn btn-lg btn-primary btn-block mt-3" type="submit">Create account</button>
-        <div style="height: 20px;"></div>
-        <button class="btn btn-lg btn-danger btn-block" type="button" onclick="location.href='{% url 'login' %}'">Already have an account?</button>
-    </form>
+          <button class="btn btn-lg btn-primary btn-block mt-3" type="submit">Create account</button>
+          <div style="height: 20px;"></div>
+          <button class="btn btn-lg btn-danger btn-block" type="button" onclick="location.href='{% url 'login' %}'">Already have an account?</button>
+      </form></div>
+    </div>
+    
   </body>
 </html>

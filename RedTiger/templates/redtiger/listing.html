@@ -69,14 +69,14 @@
                          {% for type in all_types %}
                          <div class="form-check">
                              <input class="form-check-input" type="checkbox" name="device_type" value="{{ type }}" id="type-{{ type }}" {% if type in selected_types %}checked{% endif %}>
-                            <label class="form-check-label" for="type-{{ type }}">{{ type }}</label>
+                            <label class="form-check-label" for="type-{{ type }}">{{ type.deviceType }}</label>
                          </div>
                          {% endfor %}
                     <h6 class="mt-4">Brand</h6>
                     {% for brand in all_brands %}
                     <div class="form-check">
                     <input class="form-check-input" type="checkbox" name="brand" value="{{ brand }}" id="brand-{{ brand }}" {% if brand in selected_brands %}checked{% endif %}>
-                    <label class="form-check-label" for="brand-{{ brand }}">{{ brand }}</label>
+                    <label class="form-check-label" for="brand-{{ brand }}">{{ brand.brand }}</label>
                     </div>
                     {% endfor %}
           
