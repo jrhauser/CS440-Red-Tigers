@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.contrib import auth
 from django.template import loader
 from django.db import connection, transaction
@@ -165,20 +165,19 @@ def listing(request, listing_id):
 def add_to_cart(request, listing_id):
     if request.method == "POST":
         quantity = int(request.POST.get('quantity', 1))
-
-        listing = get_object_or_404(Listing, pk=listing_id)
+        listing = Listing.objects.raw("SELECT * FROM RedTiger_listing WHERE listingID = %s", [listing_id])
+        if not listing:
+            raise Http404("The listing you are trying to add to cart doesn't exist")
         user = request.user
-        # TODO: Change to SQL 
-        cart_item, created = Cart.objects.get_or_create(
-            userID=user,
-            listingID=listing,
-            defaults={'quantity': quantity}
-        )
-
-        if not created:
-            cart_item.quantity += quantity
-            cart_item.save()
-
+        cart_item = Cart.objects.raw("SELECT * FROM RedTiger_cart WHERE listingID_id = %s AND userID_id = %s", [listing[0].listingID, user.id])
+        print(user.id)
+        if not cart_item:
+            with connection.cursor() as cursor:
+                cursor.execute("INSERT INTO RedTiger_cart VALUES (NULL, %s, %s, %s)", [quantity, user.id, listing[0].listingID])
+            return redirect('index')
+        with connection.cursor() as cursor:
+            quantity += 1
+            cursor.execute("UPDATE RedTiger_cart SET quantity = %s", [quantity])
         return redirect('index')
 
     return redirect('index')
@@ -301,8 +300,6 @@ def edit_listing(request, listing_id):
 @login_required
 @require_POST
 def delete_listing(request, listing_id):
-    # TODO: remove?
-    listing = Listing.objects.raw("SELECT * FROM RedTiger_listing WHERE listingID = %s AND seller_id = %s", [listing_id, request.user.id])
     with connection.cursor() as cursor:
         cursor.execute("DELETE FROM RedTiger_listing WHERE listingID = %s AND seller_id = %s", [listing_id, request.user.id])
     return redirect('userprofile', username=request.user.username)
@@ -353,11 +350,13 @@ def all_listings(request):
         listing_dict = l._asdict()
         listing_dict['deviceID'] = device
         listings.append(type('ListingObj', (), listing_dict))
-    # TODO: CHANGE TO SQL
-    all_types = Device.objects.values_list('deviceType', flat=True).distinct()
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT DISTINCT deviceType FROM RedTiger_device")
+        all_types = namedtuplefetchall(cursor)
+        cursor.execute("SELECT DISTINCT brand FROM RedTiger_device")
+        all_brands = namedtuplefetchall(cursor)
     all_types = sorted(set(all_types))  # Ensure unique and sorted device types
-    all_brands = Device.objects.values_list('brand', flat=True).distinct()
-
+    all_brands = sorted(set(all_brands))
     context = {
         'listings': listings,
         'devices': devices,
@@ -377,13 +376,19 @@ def signup(request):
         email = request.POST.get('email')
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
-        #TODO: Change to SQL
-        if User.objects.filter(username=username).exists():
-            return render(request, "redtiger/signup.html", {"error": "Username already exists."})
-        if User.objects.filter(email=email).exists():
-            return render(request, "redtiger/signup.html", {"error": "Email already exists."})
-
-        # TODO: ADD CORRESPONDING QUERY EVEN THO ITS NOT USED
+        exists = False
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM auth_user WHERE username = %s OR email = %s", [username, email])
+            if cursor.fetchone() is not None:
+                exists = True
+        if exists:
+            return render(request, "redtiger/signup.html", {"error": "Username or email already exists."})
+        '''
+            Create User Query, not used because Django doesn't like it
+            INSERT INTO RedTiger_auth (password, last_login, is_superuser, username, first_name, last_name
+                email, is_staff, is_active, date_joined) 
+                VALUES ('password', NOW(), 0, 'username', 'first_name', 'last_name', 'email', 0, 1, NOW())
+        '''
         user = User.objects.create_user(username=username, password=password, email=email)
         user.first_name = first_name
         user.last_name = last_name

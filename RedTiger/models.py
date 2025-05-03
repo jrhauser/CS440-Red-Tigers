@@ -36,8 +36,8 @@ CREATE TABLE `RedTiger_order` (
   `quantity` smallint unsigned NOT NULL,
   `productID_id` smallint NOT NULL,
   PRIMARY KEY (`orderID`),
-  KEY `RedTiger_order_productID_id_774363ed_fk_RedTiger_` (`productID_id`),
-  CONSTRAINT `RedTiger_order_productID_id_774363ed_fk_RedTiger_` FOREIGN KEY (`productID_id`) REFERENCES `RedTiger_listing` (`listingID`),
+  KEY `RedTiger_order_productID_id` (`productID_id`),
+  CONSTRAINT `RedTiger_order_productID` FOREIGN KEY (`productID_id`) REFERENCES `RedTiger_listing` (`listingID`),
   CONSTRAINT `RedTiger_order_chk_1` CHECK ((`quantity` >= 0))
 )
 '''
@@ -101,10 +101,10 @@ CREATE TABLE `RedTiger_listing` (
   `condition` varchar(20) NOT NULL,
   `timestamp` datetime(6) NOT NULL,
   PRIMARY KEY (`listingID`),
-  KEY `RedTiger_listing_seller_id_9a5542ce_fk_auth_user_id` (`seller_id`),
+  KEY `RedTiger_listing_seller_id_auth_user_id` (`seller_id`),
   KEY `brand_idx` (`deviceID_id`),
-  CONSTRAINT `RedTiger_listing_deviceID_id_2648d33b_fk_RedTiger_` FOREIGN KEY (`deviceID_id`) REFERENCES `RedTiger_device` (`deviceID`),
-  CONSTRAINT `RedTiger_listing_seller_id_9a5542ce_fk_auth_user_id` FOREIGN KEY (`seller_id`) REFERENCES `auth_user` (`id`),
+  CONSTRAINT `RedTiger_listing_deviceID_id` FOREIGN KEY (`deviceID_id`) REFERENCES `RedTiger_device` (`deviceID`),
+  CONSTRAINT `RedTiger_listing_seller_id_fk_auth_user_id` FOREIGN KEY (`seller_id`) REFERENCES `auth_user` (`id`),
   CONSTRAINT `RedTiger_listing_chk_1` CHECK ((`quantity` >= 0)) AUTO_INCREMENT=10
 
 '''
@@ -137,9 +137,9 @@ CREATE TABLE `RedTiger_cart` (
   `listingID_id` smallint NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `RedTiger_cart_userID_id_listingID_id_1a5f017c_uniq` (`userID_id`,`listingID_id`),
-  KEY `RedTiger_cart_listingID_id_b0831dc0_fk_RedTiger_` (`listingID_id`),
-  CONSTRAINT `RedTiger_cart_listingID_id_b0831dc0_fk_RedTiger_` FOREIGN KEY (`listingID_id`) REFERENCES `RedTiger_listing` (`listingID`),
-  CONSTRAINT `RedTiger_cart_userID_id_ada8148a_fk_auth_user_id` FOREIGN KEY (`userID_id`) REFERENCES `auth_user` (`id`),
+  KEY `RedTiger_cart_listingID_id_fk_RedTiger_` (`listingID_id`),
+  CONSTRAINT `RedTiger_cart_listingID_id` FOREIGN KEY (`listingID_id`) REFERENCES `RedTiger_listing` (`listingID`),
+  CONSTRAINT `RedTiger_cart_userID_id_auth_user_id` FOREIGN KEY (`userID_id`) REFERENCES `auth_user` (`id`),
   CONSTRAINT `RedTiger_cart_chk_1` CHECK ((`quantity` >= 0))
 ) 
 
@@ -176,7 +176,7 @@ CREATE TABLE `RedTiger_usershipping` (
   `user_id` int NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`),
-  CONSTRAINT `RedTiger_seller_user_id_d97b4f2c_fk_auth_user_id` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)
+  CONSTRAINT `RedTiger_seller_user_id_fk_auth_user_id` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)
 ) 
 '''
 
