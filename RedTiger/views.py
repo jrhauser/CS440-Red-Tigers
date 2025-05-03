@@ -30,7 +30,7 @@ def index(request):
     with connection.cursor() as cursor:
         cursor.execute('SELECT * FROM RedTiger_device')
         devices = namedtuplefetchall(cursor)
-        cursor.execute('SELECT * FROM RedTiger_listing')
+        cursor.execute('SELECT * FROM RedTiger_listing WHERE quantity > 0')
         listings_raw = namedtuplefetchall(cursor)
 
     # Convert each listing to a dict and attach seller User object
@@ -56,10 +56,25 @@ def index(request):
 def checkout(request):
     cart_items = Cart.objects.raw("SELECT id, listingID_id, userID_id FROM RedTiger_cart WHERE userID_id = %s", [request.user.id])
     total = sum(item.listingID.price * item.quantity for item in cart_items)
+
+    # Check for CPU and MOBO platform compatibility
+    cpu_platform = None
+    mobo_platform = None
+    for item in cart_items:
+        device = item.listingID.deviceID
+        if device.deviceType == 'CPU' and cpu_platform is None:
+            cpu_platform = device.platform
+        elif device.deviceType in ('MOBO', 'MOTHERBOARD') and mobo_platform is None:
+            mobo_platform = device.platform
+    platform_warning = None
+    if cpu_platform and mobo_platform and cpu_platform != mobo_platform:
+        platform_warning = f"Warning: The CPU (platform: {cpu_platform}) and Motherboard (platform: {mobo_platform}) in your cart are not compatible. Please check their socket/platform before purchasing."
+
     return render(request, "redtiger/checkout.html", {
         'cart_items': cart_items,
         'total': total,
-        'quantity_range': range(1, 21)
+        'quantity_range': range(1, 21),
+        'platform_warning': platform_warning,
     })
 
 def login(request):
@@ -89,9 +104,48 @@ def userprofile(request, username):
         return(redirect('userprofile', username))
     selling_history = Listing.objects.raw("SELECT * FROM RedTiger_listing WHERE seller_id = %s", [user[0].id])
     address = UserShipping.objects.raw("SELECT * FROM RedTiger_usershipping WHERE user_id = %s", [user[0].id])
+    # Fetch order history for this user (no OrderItem, just Order, Listing, Device)
+    with connection.cursor() as cursor:
+        cursor.execute('''
+            SELECT o.orderID, o.timestamp, o.quantity, l.price, l.listingID, l.deviceID_id, d.brand, d.model, d.deviceType
+            FROM RedTiger_Order o
+            JOIN RedTiger_listing l ON o.productID_id = l.listingID
+            JOIN RedTiger_device d ON l.deviceID_id = d.deviceID
+            WHERE o.userID_id = %s
+            ORDER BY o.timestamp DESC, o.orderID DESC
+        ''', [user[0].id])
+        order_rows = namedtuplefetchall(cursor)
+    # Build orders list with nested product and device info for template compatibility
+    orders = []
+    for row in order_rows:
+        order = {
+            'orderID': row.orderID,
+            'timestamp': row.timestamp,
+            'quantity': row.quantity,
+            'price': row.price,
+            'productID': {
+                'listingID': row.listingID,
+                'deviceID': {
+                    'brand': row.brand,
+                    'model': row.model,
+                    'deviceType': row.deviceType,
+                }
+            }
+        }
+        orders.append(order)
     if not address:
-            return render(request, 'redtiger/userprofile.html', {'user': request.user, 'selling_history': selling_history, 'address': None})        
-    return render(request, 'redtiger/userprofile.html', {'user': request.user, 'selling_history': selling_history, 'address': address[0]})
+        return render(request, 'redtiger/userprofile.html', {
+            'user': request.user,
+            'selling_history': selling_history,
+            'address': None,
+            'orders': orders
+        })        
+    return render(request, 'redtiger/userprofile.html', {
+        'user': request.user,
+        'selling_history': selling_history,
+        'address': address[0],
+        'orders': orders
+    })
 
 def listing(request, listing_id):
     with connection.cursor() as cursor:
@@ -268,7 +322,7 @@ def all_listings(request):
                d.platform as d_platform, d.storage as d_storage, d.power as d_power, d.image_url as d_image_url
         FROM RedTiger_listing l
         INNER JOIN RedTiger_device d ON l.deviceID_id = d.deviceID
-        WHERE 1=1
+        WHERE l.quantity > 0
     """
     params = []
     if device_type:
@@ -342,34 +396,30 @@ def signup(request):
 @login_required
 def process_purchase(request):
     user_id = request.user.id
-
     try:
         with transaction.atomic():
             with connection.cursor() as cursor:
-                cursor.execute(
-                  "INSERT INTO RedTiger_Order (userID_id, order_date) VALUES (%s, NOW())", [user_id]
-                )
-                order_id = cursor.fetchone()[0]
-
                 cursor.execute(
                     "SELECT listingID_id, quantity FROM RedTiger_cart WHERE userID_id = %s", [user_id]
                 )
                 cart_items = namedtuplefetchall(cursor)
                 for item in cart_items:
+                    # Insert one order per cart item
                     cursor.execute(
-                        "INSERT INTO RedTiger_OrderItem (orderID_id, listingID_id, quantity) VALUES (%s, %s, %s)", [order_id, item.listingID_id, item.quantity]
+                        "INSERT INTO RedTiger_Order (userID_id, productID_id, quantity, timestamp) VALUES (%s, %s, %s, NOW())",
+                        [user_id, item.listingID_id, item.quantity]
                     )
                     cursor.execute(
-                        "UPDATE RedTiger_listing SET quantity = quantity - %s WHERE listingID = %s AND quantity >= %s", [item.quantity, item.listingID_id, item.quantity]
+                        "UPDATE RedTiger_listing SET quantity = quantity - %s WHERE listingID = %s AND quantity >= %s",
+                        [item.quantity, item.listingID_id, item.quantity]
                     )
                     if cursor.rowcount == 0:
                         raise Exception("Insufficient stock for listing ID: %s" % item.listingID_id)
                 cursor.execute(
                     "DELETE FROM RedTiger_cart WHERE userID_id = %s", [user_id]
                 )
-            return redirect('userprofile')
+            return redirect('userprofile', username=request.user.username)
     except Exception as e:
         with connection.cursor() as cursor:
             cursor.execute("ROLLBACK")
-            #cursor.execute("DELETE FROM RedTiger_Order WHERE orderID = %s", [order_id])
         return render(request, "redtiger/checkout.html", {"error": str(e)})
