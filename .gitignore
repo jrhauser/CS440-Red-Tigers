@@ -1,3 +1,5 @@
 .venv/
 *.pyc
 node_modules/
+RedTiger/data/maybe.csv
+RedTiger/management/commands/import_data.py

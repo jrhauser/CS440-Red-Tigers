@@ -9,8 +9,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         self.add_users()
-        self.import_and_list('RedTiger/data/cpu_data.csv', 'CPU')
-        self.import_and_list('RedTiger/data/motherboard_data.csv', 'MOBO')
+       # self.import_and_list('RedTiger/data/cpu_data.csv', 'CPU')
+       # self.import_and_list('RedTiger/data/motherboard_data.csv', 'MOBO')
+        self.import_and_list('RedTiger/data/maybe.csv', 'GPU')
 
     def add_users(self):
 
@@ -40,23 +41,24 @@ class Command(BaseCommand):
             with open(filepath, newline='', encoding='utf-8') as csvfile:
                 reader = csv.DictReader(csvfile)
                 for row in reader:
-                    brand = row.get('Brand') or row.get('Manufacturer')
-                    line = row.get('Line') or None
-                    model = row.get('Model') or row.get('Name')
-                    platform = row.get('Platform') or row.get('Socket') or ''
-                    power = row.get('Power') or ''
-                    image_url = row.get('ImageURL') or None
+                    brand = row.get('brand')
+                    line = row.get('line') or ''
+                    model = row.get('model')
+                    platform = row.get('platform') or row.get('') or ''
+                    power = row.get('power') or ''
+                    image_url = row.get('image_url') or ''
+                    device_type = row.get('deviceType')
 
                     if brand and model:
                         device, created = Device.objects.get_or_create(
-                            deviceType=device_type,
+                            deviceType= row.get('deviceType'),
                             brand=brand.strip(),
-                            line=line.strip() if line else None,
+                            line=line.strip() if line else '',
                             model=model.strip(),
-                            platform=platform.strip() or None,
-                            power=power.strip() or None,
-                            storage=None,
-                            image_url=image_url.strip() if image_url else None
+                            platform=platform.strip() or '',
+                            power=power.strip() or '',
+                            storage='',
+                            image_url=image_url.strip() if image_url else ''
                         )
                         if created:
                             self.stdout.write(self.style.SUCCESS(f"Imported device: {brand} {model}"))
