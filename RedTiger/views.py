@@ -360,9 +360,11 @@ def all_listings(request):
             listing_dict['address'] = address[0]
         listings.append(type('ListingObj', (), listing_dict))
     with connection.cursor() as cursor:
-        cursor.execute("SELECT DISTINCT deviceType FROM RedTiger_device")
+        cursor.execute("SELECT deviceType, COUNT(*) as count FROM RedTiger_listing l INNER JOIN RedTiger_device d ON l.deviceID_id = d.deviceID WHERE l.quantity > 0 GROUP BY deviceType")
         all_types = namedtuplefetchall(cursor)
-        cursor.execute("SELECT DISTINCT brand FROM RedTiger_device")
+#        cursor.execute("SELECT DISTINCT deviceType FROM RedTiger_device")
+ #       all_types = namedtuplefetchall(cursor)
+        cursor.execute("SELECT brand, COUNT(*) as count FROM RedTiger_listing l INNER JOIN RedTiger_device d ON l.deviceID_id = d.deviceID WHERE l.quantity > 0 GROUP BY brand")
         all_brands = namedtuplefetchall(cursor)
     all_types = sorted(set(all_types))  # Ensure unique and sorted device types
     all_brands = sorted(set(all_brands))
