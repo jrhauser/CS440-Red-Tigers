@@ -82,13 +82,12 @@ def login(request):
 
         username = request.POST.get('username')
         password = request.POST.get('password') 
-
         user = auth.authenticate(username=username, password=password)
         if user is not None:
             auth.login(request, user)
             return redirect('index')
         else:
-            return redirect('login')
+            return render(request, 'redtiger/login.html', {'error': 'Username or Password is incorrect'})
     else:
       return render(request, "redtiger/login.html")
   
@@ -108,7 +107,7 @@ def userprofile(request, username):
     with connection.cursor() as cursor:
         cursor.execute('''
             SELECT o.orderID, o.timestamp, o.quantity, l.price, l.listingID, l.deviceID_id, d.brand, d.model, d.deviceType
-            FROM RedTiger_Order o
+            FROM RedTiger_order o
             JOIN RedTiger_listing l ON o.productID_id = l.listingID
             JOIN RedTiger_device d ON l.deviceID_id = d.deviceID
             WHERE o.userID_id = %s
