@@ -23,7 +23,6 @@ document.addEventListener('DOMContentLoaded', function() {
       if (totalElem) {
         totalElem.textContent = `$${total.toFixed(2)}`;
       }
-      // Optionally, send update to backend (keep this if you want to persist changes)
       fetch(`/update_cart_quantity/${itemId}`, {
         method: 'POST',
         headers: {
