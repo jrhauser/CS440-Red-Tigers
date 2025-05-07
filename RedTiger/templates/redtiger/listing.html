@@ -156,7 +156,7 @@
                           <p><strong>Quantity:</strong> {{ listing.quantity }}</p>
                           <p><strong>Condition:</strong> {{ listing.condition }}</p>
                           <p><strong>Seller:</strong> {{ listing.seller.first_name }} {{ listing.seller.last_name }}</p>
-                          <p><strong>Location:</strong> {{ listing.seller.location }}</p>
+                          <p><strong>Location:</strong> {{ listing.address.city }}, {{ listing.address.state }}</p>
                           <p><strong>Date Posted:</strong> {{listing.timestamp}}</p>
                         </div>
                       </div>

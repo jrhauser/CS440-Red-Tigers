@@ -348,6 +348,16 @@ def all_listings(request):
         # Convert to dict to allow attribute access in template
         listing_dict = l._asdict()
         listing_dict['deviceID'] = device
+        # Attach seller and address like index view
+        try:
+            seller = User.objects.raw("SELECT id, first_name, last_name FROM auth_user WHERE id = %s", [l.seller_id])
+            address = UserShipping.objects.raw("SELECT id, city, state FROM RedTiger_usershipping WHERE user_id = %s", [l.seller_id])
+        except User.DoesNotExist:
+            seller = None
+            address = None
+        listing_dict['seller'] = seller[0] if seller else None
+        if address:
+            listing_dict['address'] = address[0]
         listings.append(type('ListingObj', (), listing_dict))
     with connection.cursor() as cursor:
         cursor.execute("SELECT DISTINCT deviceType FROM RedTiger_device")
